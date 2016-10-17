@@ -2,6 +2,8 @@
 
 // Import
 const rest = require('restify')
+const responseCreator = require('./response-creator.js')
+const print = require('./print').print
 
 // Create Server
 const app = rest.createServer()
@@ -15,15 +17,94 @@ app.use(rest.queryParser())
 // Default Port
 const defaultPort = 8080
 
+// StatusCodes
+const StatusCodes = {
+	ok : 200,
+	created: 201,
+	accepted: 202,
+	badRequest: 400,
+	unauthorised: 401,
+	notFound: 404
+}
+
+// Custom middleware
+app.use(function(req, res, next) {
+	if (!req.authorization.basic) {
+		let response = responseCreator.createError("basic auth not provided")
+		res.send(StatusCodes.unauthorised, response)
+		res.end()
+	}
+	if (!req.username || !req.authorization.basic.password) {
+		let response = responseCreator.createError("missing username or password")
+		res.send(StatusCodes.unauthorised, response)
+		res.end()
+	}
+	next()
+})
+
 // Routes
-// Redirect to anime
+// Verify users details
 app.get('/', function(req, res, next) {
 	res.redirect('/anime', next)
 })
 
+// Redirect to anime
+app.head('/anime', function(req, res) {
+	res.send("Not Implemented")
+})
+
 // Anime collection (Requires 'q' parameter)
 app.get('/anime', function(req, res) {
-	console.log(req.params.q)
+	if (!req.params.q && !req.params.query) {
+		let response = responseCreator.createError("'query' or 'q' parameter required")
+		res.send(StatusCodes.badRequest, response)
+		return
+	}
+
+	let parameter = req.params.q || req.params.query
+
+	let data = {
+		parameter: parameter
+	}
+
+	let response = responseCreator.createResponse("Search successful", data)
+	res.send(StatusCodes.ok, response)
+	return
+})
+
+// Get anime by MyAnimeList ID
+app.get('/anime/:animeId', function(req, res) {
+	if (!req.params.animeId) {
+		let response = responseCreator.createError("missing anime id!")
+		res.send(StatusCodes.badRequest, response)
+	}
+
+	let id = req.params.animeId
+	let data = {
+		animeId: id
+	}
+
+	let response = responseCreator.createResponse("Anime found", data)
+	res.send(StatusCodes.ok, response)
+})
+
+// Add an anime to users list
+app.post('/anime', function(req, res) {
+	res.send("")
+})
+
+// Update an anime on a users list
+app.put('/anime', function(req, res) {
+	res.send("")
+})
+
+// Get users list
+app.get('/mylist', function(req, res) {
+	res.send("")
+})
+
+// Get individual id from list
+app.get('/mylist/:animeID', function(req, res) {
 	res.send("")
 })
 
