@@ -43,10 +43,11 @@ app.use(function(req, res, next) {
 		res.send(StatusCodes.unauthorised, response)
 		res.end()
 	}
-	MALintent.verifyUser(username, password, (res, userid, username) => {
-		switch (res) {
+	MALintent.verifyUser(username, password, (malsponse, userid, username) => {
+		switch (malsponse) {
 		case MALintent.malsponse.unauthorised:
 			let response = responseCreator.createError("Username or Password incorrect (or maybed the auth server is down)")
+			print(response)
 			res.send(StatusCodes.unauthorised, response)
 			res.end()
 			break

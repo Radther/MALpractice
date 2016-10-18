@@ -34,8 +34,12 @@ exports.verifyUser = function(username, password, completion) {
 		if (error) {
 			completion(malsponse.unauthorised)
 		}
+		if (body == "Invalid credentials") {
+			completion(malsponse.unauthorised)
+			return
+		}
 		xml2js.parseString(body, (err, result) => {
-			if (error) {
+			if (err) {
 				completion(malsponse.unauthorised)
 				return
 			}
