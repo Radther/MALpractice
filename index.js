@@ -4,6 +4,7 @@
 const rest = require('restify')
 const responseCreator = require('./response-creator.js')
 const print = require('./print').print
+const MALintent = require('./MALintent.js')
 
 // Create Server
 const app = rest.createServer()
