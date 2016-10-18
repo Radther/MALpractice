@@ -4,6 +4,7 @@
 const rest = require('restify')
 const responseCreator = require('./response-creator.js')
 const print = require('./print').print
+const printAll = require('./print').printAll
 const MALintent = require('./MALintent.js')
 
 // Create Server
@@ -35,12 +36,27 @@ app.use(function(req, res, next) {
 		res.send(StatusCodes.unauthorised, response)
 		res.end()
 	}
-	if (!req.username || !req.authorization.basic.password) {
+	let username = req.username
+	let password = req.authorization.basic.password
+	if (!username || !password) {
 		let response = responseCreator.createError("missing username or password")
 		res.send(StatusCodes.unauthorised, response)
 		res.end()
 	}
-	next()
+	MALintent.verifyUser(username, password, (res, userid, username) => {
+		switch (res) {
+		case MALintent.malsponse.unauthorised:
+			let response = responseCreator.createError("Username or Password incorrect (or maybed the auth server is down)")
+			res.send(StatusCodes.unauthorised, response)
+			res.end()
+			break
+		case MALintent.malsponse.verified:
+			req.userid = userid
+			req.username = username
+			next()
+			break
+		}
+	})
 })
 
 // Routes
@@ -51,7 +67,11 @@ app.get('/', function(req, res, next) {
 
 // Redirect to anime
 app.head('/anime', function(req, res) {
-	res.send("Not Implemented")
+	let response = responseCreator.createResponse("Verification Successful", {
+		userid: req.userid,
+		username: req.username
+	})
+	res.send(StatusCodes.ok, response)
 })
 
 // Anime collection (Requires 'q' parameter)
