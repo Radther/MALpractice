@@ -47,7 +47,6 @@ app.use(function(req, res, next) {
 		switch (malsponse) {
 		case MALintent.malsponse.unauthorised:
 			let response = responseCreator.createError("Username or Password incorrect (or maybed the auth server is down)")
-			print(response)
 			res.send(StatusCodes.unauthorised, response)
 			res.end()
 			break
