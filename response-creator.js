@@ -2,7 +2,7 @@
 
 exports.createResponse = function(message, data) {
 	return {
-		status: "Success",
+		status: 'Success',
 		message: message,
 		data: data
 	}
@@ -10,7 +10,7 @@ exports.createResponse = function(message, data) {
 
 exports.createError = function(message) {
 	return {
-		status: "Error",
+		status: 'Error',
 		message: message
 	}
 }
