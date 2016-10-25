@@ -2,17 +2,18 @@
 
 require('./extensions.js')
 const request = require('request')
-// const print = require('./print').print
 const xml2js = require('xml2js')
+const cheerio = require('cheerio')
 
 const baseUrl = 'https://myanimelist.net'
 const method = {
-	search: '/api/anime/search.xml',
+	search: '/api/anime/search.xml?q={query}',
 	add: '/api/animelist/add/{id}.xml',
 	update: '/api/animelist/update/{id}.xml',
 	delete: '/api/animelist/delete/{id}.xml',
 	verify: '/api/account/verify_credentials.xml',
-	list: '/malappinfo.php?u={username}&status=all&type=anime'
+	list: '/malappinfo.php?u={username}&status=all&type=anime',
+	get: '/anime/{id}'
 }
 
 const malsponse = {
@@ -24,6 +25,8 @@ const malsponse = {
 	failedToAdd: 'failedToAdd',
 	updatedSuccessfully: 'updatedSuccessfully',
 	failedToUpdate: 'failedToUpdate',
+	animeNotFound: 'animeNotFound',
+	invalidSearch: 'invalidSearch'
 }
 
 const animeXMLObject =
@@ -62,6 +65,14 @@ const animeXMLObjectParams = {
 	comments: 'comments',
 	fansub_group: 'fansub_group',
 	tags: 'tags'
+}
+
+const watchStatus = {
+	1: 'Watching',
+	2: 'Completed',
+	3: 'On-Hold',
+	4: 'Dropped',
+	6: 'Plan to Watch'
 }
 
 exports.malsponse = malsponse
@@ -136,10 +147,15 @@ exports.getAnimeList = function(username, completion) {
 			for (let i = anime.length - 1; i >= 0; i--) {
 				const animeItem = anime[i]
 				if (animeItem.series_animedb_id.first()) {
-					animelist.push({
-						malid: animeItem.series_animedb_id.first(),
-						title: animeItem.series_title.first() || '[title unknown]'
-					})
+					const anime = {}
+					anime.malid = animeItem.series_animedb_id.first()
+					anime.title = animeItem.series_title.first() || '[title unknown]'
+					anime.my_watched_episodes = animeItem.my_watched_episodes.first()
+					const watch_status_code = animeItem.my_status.first()
+					anime.my_watch_status = watchStatus[watch_status_code]
+					anime.my_last_updated = animeItem.my_last_updated.first()
+					anime.my_score = animeItem.my_score.first()
+					animelist.push(anime)
 				}
 			}
 			completion(animelist)
@@ -189,8 +205,6 @@ exports.updateAnime = function(username, password, animeData, completion) {
 		.concat('?data=')
 		.concat(encodedXMLAnimeData)
 
-	url.print()
-
 	const auth = createAuth(username, password)
 	request.get({
 		url: url,
@@ -212,6 +226,103 @@ exports.updateAnime = function(username, password, animeData, completion) {
 		completion(malsponse.updatedSuccessfully)
 		return
 	})
+}
+
+exports.getAnime = function(animeID, completion) {
+	const url = baseUrl+method.get
+		.injectURLParam('id', animeID)
+
+	request.get({
+		url: url
+	}, function(error, res) {
+		if (error) {
+			completion(malsponse.animeNotFound)
+			return
+		}
+		const $ = cheerio.load(res.body, {decodeEntities: false})
+		if (!($('.error404').text().trim().replace(/\s\s+/g, ' ') === '')) {
+			completion(malsponse.animeNotFound)
+			return
+		}
+		try {
+			const anime = {}
+
+			anime.title = $('h1').text()
+			anime.info = {}
+
+			$('span[class^="dark_text"]').parent().each(function(index, elem) {
+				const data = $(elem).children('span').text().replace(':','')
+				$(elem).children('span').remove()
+				$(elem).children('.statistics-info').remove()
+				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
+				anime.info[data] = item
+			})
+
+			anime.description = $('span[itemprop^="description"]').text()
+			anime.score = $('.score').text().trim().replace(/\s\s+/g, ' ')
+			anime.rank = $('.numbers.ranked').children('strong').text().trim().replace(/\s\s+/g, ' ')
+			anime.popularity = $('.numbers.popularity').children('strong').text().trim().replace(/\s\s+/g, ' ')
+			anime.members = $('.numbers.members').children('strong').text().trim().replace(/\s\s+/g, ' ')
+
+			anime.imageurl = $('[itemprop^="image"]').attr('src')
+
+			completion(anime)
+		} catch(error) {
+			completion(malsponse.animeNotFound)
+		}
+	})
+}
+
+exports.searchAnime = function(username, password, query, completion) {
+	const url = baseUrl+method.search
+		.injectURLParam('query', query)
+	const auth = createAuth(username, password)
+
+	request.get({
+		url: url,
+		headers: {
+			'Authorization': auth
+		}
+	}, function(error, res, body) {
+		if (error) {
+			completion(malsponse.invalidSearch)
+			return
+		}
+		xml2js.parseString(body, (err, result) => {
+			try {
+				if (err) {
+					completion(malsponse.invalidSearch)
+					return
+				}
+				if (!result.anime) {
+					completion(malsponse.invalidSearch)
+					return
+				}
+				const animes = []
+				for (const item of result.anime.entry) {
+					const anime = {}
+					if (!item.id.first()) {
+						continue
+					}
+					anime.malid = item.id.first()
+					anime.title = item.title.first() !== undefined && item.title.first() !== ''? item.title.first() : '[title unknown]'
+					anime.episodes = item.episodes.first() !== undefined && item.episodes.first() != '0' ? item.episodes.first() : '???'
+					anime.score = item.score.first() !== undefined && item.score.first() != '0.00' ? item.score.first() : 'N/A'
+					anime.type = item.type.first() !== undefined && item.type.first() != '' ? item.type.first() : 'Unknown'
+					anime.air_status = item.status.first() !== undefined && item.status.first() != '' ? item.status.first() : 'Unknown'
+					anime.imageurl = item.image.first() !== undefined && item.image.first() != '' ? item.image.first() : ''
+
+					animes.push(anime)
+				}
+				completion(animes)
+				return
+			} catch (error) {
+				completion(malsponse.invalidSearch)
+				return
+			}
+		})
+	})
+
 }
 
 function createAuth(username, password) {

@@ -4,7 +4,6 @@
 require('./extensions.js')
 const rest = require('restify')
 const responseCreator = require('./response-creator.js')
-// const print = require('./print').print
 const MALintent = require('./MALintent.js')
 
 // Create Server
@@ -81,15 +80,20 @@ app.get('/anime', function(req, res) {
 		return
 	}
 
-	const parameter = req.params.q || req.params.query
+	const username = req.username
+	const password = req.authorization.basic.password
+	const query = req.params.q || req.params.query
 
-	const data = {
-		parameter: parameter
-	}
-
-	const response = responseCreator.createResponse('Search successful', data)
-	res.send(StatusCodes.ok, response)
-	return
+	MALintent.searchAnime(username, password, query, function(result) {
+		if (result === MALintent.malsponse.invalidSearch) {
+			const response = responseCreator.createError('Invalid Search')
+			res.send(StatusCodes.badRequest, response)
+			return
+		}
+		const response = responseCreator.createResponse('Search Successful', result)
+		res.send(StatusCodes.ok, response)
+		return
+	})
 })
 
 // Get anime by MyAnimeList ID
@@ -100,12 +104,16 @@ app.get('/anime/:animeId', function(req, res) {
 	}
 
 	const id = req.params.animeId
-	const data = {
-		animeId: id
-	}
-
-	const response = responseCreator.createResponse('Anime found', data)
-	res.send(StatusCodes.ok, response)
+	MALintent.getAnime(id, function(result) {
+		if (result === MALintent.malsponse.animeNotFound) {
+			const response = responseCreator.createError('Anime not found')
+			res.send(StatusCodes.notFound, response)
+			return
+		}
+		const response = responseCreator.createResponse('Found anime', result)
+		res.send(StatusCodes.ok, response)
+		return
+	})
 })
 
 // Get users list
