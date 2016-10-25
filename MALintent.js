@@ -151,8 +151,8 @@ exports.getAnimeList = function(username, completion) {
 					anime.malid = animeItem.series_animedb_id.first()
 					anime.title = animeItem.series_title.first() || '[title unknown]'
 					anime.my_watched_episodes = animeItem.my_watched_episodes.first()
-					const watch_status_code = animeItem.my_status.first()
-					anime.my_watch_status = watchStatus[watch_status_code]
+					const watch_status_code = Number(animeItem.my_status.first())
+					anime.my_watch_status = watch_status_code
 					anime.my_last_updated = animeItem.my_last_updated.first()
 					anime.my_score = animeItem.my_score.first()
 					animelist.push(anime)
@@ -306,11 +306,11 @@ exports.searchAnime = function(username, password, query, completion) {
 					}
 					anime.malid = item.id.first()
 					anime.title = item.title.first() !== undefined && item.title.first() !== ''? item.title.first() : '[title unknown]'
-					anime.episodes = item.episodes.first() !== undefined && item.episodes.first() != '0' ? item.episodes.first() : '???'
-					anime.score = item.score.first() !== undefined && item.score.first() != '0.00' ? item.score.first() : 'N/A'
-					anime.type = item.type.first() !== undefined && item.type.first() != '' ? item.type.first() : 'Unknown'
-					anime.air_status = item.status.first() !== undefined && item.status.first() != '' ? item.status.first() : 'Unknown'
-					anime.imageurl = item.image.first() !== undefined && item.image.first() != '' ? item.image.first() : ''
+					anime.episodes = item.episodes.first() !== undefined && Number(item.episodes.first()) !== 0 ? item.episodes.first() : '???'
+					anime.score = item.score.first() !== undefined && item.score.first() !== '0.00' ? item.score.first() : 'N/A'
+					anime.type = item.type.first() !== undefined && item.type.first() !== '' ? item.type.first() : 'Unknown'
+					anime.air_status = item.status.first() !== undefined && item.status.first() !== '' ? item.status.first() : 'Unknown'
+					anime.imageurl = item.image.first() !== undefined && item.image.first() !== '' ? item.image.first() : ''
 
 					animes.push(anime)
 				}
