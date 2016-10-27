@@ -67,13 +67,13 @@ const animeXMLObjectParams = {
 	tags: 'tags'
 }
 
-const watchStatus = {
-	1: 'Watching',
-	2: 'Completed',
-	3: 'On-Hold',
-	4: 'Dropped',
-	6: 'Plan to Watch'
-}
+// const watchStatus = {
+// 	1: 'Watching',
+// 	2: 'Completed',
+// 	3: 'On-Hold',
+// 	4: 'Dropped',
+// 	6: 'Plan to Watch'
+// }
 
 exports.malsponse = malsponse
 
@@ -150,11 +150,11 @@ exports.getAnimeList = function(username, completion) {
 					const anime = {}
 					anime.malid = animeItem.series_animedb_id.first()
 					anime.title = animeItem.series_title.first() || '[title unknown]'
-					anime.my_watched_episodes = animeItem.my_watched_episodes.first()
+					anime.my_watched_episodes = Number(animeItem.my_watched_episodes.first())
 					const watch_status_code = Number(animeItem.my_status.first())
 					anime.my_watch_status = watch_status_code
-					anime.my_last_updated = animeItem.my_last_updated.first()
-					anime.my_score = animeItem.my_score.first()
+					anime.my_last_updated = Number(animeItem.my_last_updated.first())
+					anime.my_score = Number(animeItem.my_score.first())
 					animelist.push(anime)
 				}
 			}
@@ -217,7 +217,6 @@ exports.updateAnime = function(username, password, animeData, completion) {
 			return
 		}
 		const successCode = 200
-		res.statusCode.print()
 		if (res.statusCode !== successCode) {
 			completion(malsponse.failedToUpdate)
 			res.statusCode.print()
@@ -256,6 +255,9 @@ exports.getAnime = function(animeID, completion) {
 				$(elem).children('.statistics-info').remove()
 				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
 				anime.info[data] = item
+				if (data === 'Episodes') {
+					anime.episodes = item
+				}
 			})
 
 			anime.description = $('span[itemprop^="description"]').text()
@@ -275,9 +277,10 @@ exports.getAnime = function(animeID, completion) {
 
 exports.searchAnime = function(username, password, query, completion) {
 	const url = baseUrl+method.search
-		.injectURLParam('query', query)
+		.injectURLParam('query', encodeURIComponent(query))
 	const auth = createAuth(username, password)
 
+	url.print()
 	request.get({
 		url: url,
 		headers: {
@@ -285,17 +288,26 @@ exports.searchAnime = function(username, password, query, completion) {
 		}
 	}, function(error, res, body) {
 		if (error) {
+			error.print()
 			completion(malsponse.invalidSearch)
+			return
+		}
+		const emptyCode = 204
+		if (res.statusCode === emptyCode) {
+			completion([])
 			return
 		}
 		xml2js.parseString(body, (err, result) => {
 			try {
+				result.print()
 				if (err) {
-					completion(malsponse.invalidSearch)
+					completion(malsponse.failedToParse)
+					'invalidSearch'.print()
 					return
 				}
 				if (!result.anime) {
 					completion(malsponse.invalidSearch)
+					'no anime?'.print()
 					return
 				}
 				const animes = []
@@ -317,7 +329,8 @@ exports.searchAnime = function(username, password, query, completion) {
 				completion(animes)
 				return
 			} catch (error) {
-				completion(malsponse.invalidSearch)
+				'failedToParse'.print()
+				completion(malsponse.failedToParse)
 				return
 			}
 		})
