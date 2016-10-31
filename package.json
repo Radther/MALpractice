@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/.bin/jasmine-node spec --color --verbose --autotest --watch ."
   },
   "author": "Tom Singleton",
   "dependencies": {
@@ -12,5 +12,10 @@
     "restify": "^4.1.1",
     "xml2js": "^0.4.17",
     "cheerio": "^0.22.0"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.0",
+    "jasmine-node": "^1.14.5",
+    "jsdoc": "^3.4.0"
   }
 }

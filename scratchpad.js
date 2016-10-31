@@ -1,18 +1,19 @@
 'use strict'
 /* eslint-disable */
+/*istanbul ignore next*/
+/* global expect */
 
-// const print = require('./print').print
-// const printAll = require('./print').printAll
-const request = require("request")
-const MALintent = require("./MALintent.js")
-require('./extensions.js')
-const cheerio = require('cheerio')
-// const url = "https://myanimelist.net/anime/34277"
-const xml2js = require('xml2js')
+const MALintent = require('./MALintent.js')
 
 const username = 'unistudent'
 const password = '+)}/wnP.G46D63TkUKq4'
 
-MALintent.searchAnime(username, password, 'fate night', function() {
-	
+describe("test", function() {
+
+	xit('verifiy the user', (done) => {
+		MALintent.verifyUser(username, password, function(result) {
+			expect(result).not.toBeNull()
+			done()
+		})
+	})
 })

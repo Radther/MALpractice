@@ -280,7 +280,6 @@ exports.searchAnime = function(username, password, query, completion) {
 		.injectURLParam('query', encodeURIComponent(query))
 	const auth = createAuth(username, password)
 
-	url.print()
 	request.get({
 		url: url,
 		headers: {
@@ -299,7 +298,6 @@ exports.searchAnime = function(username, password, query, completion) {
 		}
 		xml2js.parseString(body, (err, result) => {
 			try {
-				result.print()
 				if (err) {
 					completion(malsponse.failedToParse)
 					'invalidSearch'.print()
@@ -329,7 +327,6 @@ exports.searchAnime = function(username, password, query, completion) {
 				completion(animes)
 				return
 			} catch (error) {
-				'failedToParse'.print()
 				completion(malsponse.failedToParse)
 				return
 			}
