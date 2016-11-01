@@ -5,6 +5,7 @@ require('./extensions.js')
 const rest = require('restify')
 const responseCreator = require('./response-creator.js')
 const MALintent = require('./MALintent.js')
+const StatusCodes = require('./StatusCodes.js').StatusCodes
 
 // Create Server
 const app = rest.createServer()
@@ -17,16 +18,6 @@ app.use(rest.queryParser())
 
 // Default Port
 const defaultPort = 8080
-
-// StatusCodes
-const StatusCodes = {
-	ok: 200,
-	created: 201,
-	accepted: 202,
-	badRequest: 400,
-	unauthorised: 401,
-	notFound: 404
-}
 
 // Custom middleware
 app.use(function(req, res, next) {
@@ -85,16 +76,32 @@ app.get('/anime', function(req, res) {
 	const password = req.authorization.basic.password
 	const query = req.params.q || req.params.query
 
-	MALintent.searchAnime(username, password, query, function(result) {
-		if (result === MALintent.malsponse.invalidSearch) {
-			const response = responseCreator.createError('Invalid Search')
-			res.send(StatusCodes.badRequest, response)
-			return
-		}
-		const response = responseCreator.createResponse('Search Successful', result)
-		res.send(StatusCodes.ok, response)
-		return
-	})
+	MALintent.searchAnime(username, password, query)
+		.then( animes => {
+			const response = responseCreator.createResponse('Search Successful', animes)
+			res.send(StatusCodes.ok, response)
+			res.end()
+		}).catch( err => {
+			if (err === StatusCodes.noContent) {
+				const response = responseCreator.createError('No Content')
+				res.send(StatusCodes.noContent, response)
+			} else {
+				const response = responseCreator.createError('Invalid Search')
+				res.send(StatusCodes.badRequest, response)
+			}
+			res.end()
+		})
+
+	// MALintent.searchAnime(username, password, query, function(result) {
+	// 	if (result === MALintent.malsponse.invalidSearch) {
+	// 		const response = responseCreator.createError('Invalid Search')
+	// 		res.send(StatusCodes.badRequest, response)
+	// 		return
+	// 	}
+	// 	const response = responseCreator.createResponse('Search Successful', result)
+	// 	res.send(StatusCodes.ok, response)
+	// 	return
+	// })
 })
 
 // Get anime by MyAnimeList ID

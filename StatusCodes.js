@@ -1,0 +1,11 @@
+'use strict'
+
+exports.StatusCodes = {
+	ok: 200,
+	created: 201,
+	accepted: 202,
+	noContent: 204,
+	badRequest: 400,
+	unauthorised: 401,
+	notFound: 404
+}

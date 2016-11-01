@@ -4,23 +4,14 @@
 
 const MALintent = require('../MALintent.js')
 const MALsponse = MALintent.malsponse
+const StatusCodes = require('../StatusCodes.js').StatusCodes
 
 const username = 'unistudent'
 const password = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
 const userid = '5778142'
 
-// StatusCodes
-const StatusCodes = {
-	ok: 200,
-	created: 201,
-	accepted: 202,
-	badRequest: 400,
-	unauthorised: 401,
-	notFound: 404
-}
-
-xdescribe('MALintent Intergration Tests', function() {
+describe('MALintent Intergration Tests', function() {
 
 	describe('verification tests', function() {
 		it('verifiy user success', (done) => {
@@ -31,14 +22,14 @@ xdescribe('MALintent Intergration Tests', function() {
 					expect(data.username).toBe(username)
 					done()
 				}).catch( err => {
-					fail(err)
+					throw new Error(err)
 				})
 		})
 
 		it('verify user fail', (done) => {
 			MALintent.verifyUser(username, fakePassword)
 				.then( () => {
-					fail('This should not be called')
+					throw new Error('This should not be called')
 				}).catch( err => {
 					expect(err).toBe(StatusCodes.unauthorised)
 					done()
@@ -46,25 +37,37 @@ xdescribe('MALintent Intergration Tests', function() {
 		})
 	})
 
-	// describe('search anime tests', function() {
-	// 	it('single word search', (done) => {
-	// 		MALintent.searchAnime(username, password, 'fate', function(result) {
-	// 			expect(result).not.toBe(Malsponse.invalidSearch)
-	// 			expect(result).not.toBe(Malsponse.failedToParse)
-	// 			expect(result).not.toBe(Malsponse.invalidSearch)
-	// 			done()
-	// 		})
-	// 	})
+	describe('search anime tests', function() {
+		it('single word search', (done) => {
+			MALintent.searchAnime(username, password, 'fate')
+				.then( anime => {
+					expect(anime).not.toBeNull()
+					done()
+				}).catch( err => {
+					throw new Error(err)
+				})
+		})
 
-	// 	it('multi word search', (done) => {
-	// 		MALintent.searchAnime(username, password, 'fate night', function(result) {
-	// 			expect(result).not.toBe(Malsponse.invalidSearch)
-	// 			expect(result).not.toBe(Malsponse.failedToParse)
-	// 			expect(result).not.toBe(Malsponse.invalidSearch)
-	// 			done()
-	// 		})
-	// 	})
-	// })
+		it('multi word search', (done) => {
+			MALintent.searchAnime(username, password, 'new game')
+				.then( anime => {
+					expect(anime).not.toBeNull()
+					done()
+				}).catch( err => {
+					throw new Error(err)
+				})
+		})
+
+		it('no content search', (done) => {
+			MALintent.searchAnime(username, password, 'no content')
+				.then( () => {
+					throw new Error('should be no content')
+				}).catch( err => {
+					expect(err).toBe(StatusCodes.noContent)
+					done()
+				})
+		})
+	})
 
 	// describe('single anime test', function() {
 	// 	it('get single anime', (done) => {

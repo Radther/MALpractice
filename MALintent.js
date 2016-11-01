@@ -7,6 +7,7 @@ const cheerio = require('cheerio')
 
 const requestp = require('request-promise')
 const xml2jsp = require('xml2js-es6-promise')
+const StatusCodes = require('./StatusCodes.js').StatusCodes
 
 const baseUrl = 'https://myanimelist.net'
 const method = {
@@ -92,6 +93,21 @@ exports.verifyUser = function(username, password) {
 	})
 }
 
+exports.searchAnime = function(username, password, query) {
+	return new Promise(function(resolve, reject) {
+		runSearchRequest(username, password, query)
+			.then( data => {
+				return parseXml(data)
+			}).then( json => {
+				return parseSearchAnime(json)
+			}).then( animes => {
+				resolve(animes)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
 exports.getAnimeList = function(username, completion) {
 	const url = baseUrl+method.list.injectURLParam('username', username)
 	request.get({
@@ -150,8 +166,6 @@ exports.addAnime = function(username, password, animeData, completion) {
 		.concat('?data=')
 		.concat(encodedXMLAnimeData)
 
-	url.print()
-
 	const auth = createAuth(username, password)
 	request.get({
 		url: url,
@@ -196,7 +210,6 @@ exports.updateAnime = function(username, password, animeData, completion) {
 		const successCode = 200
 		if (res.statusCode !== successCode) {
 			completion(malsponse.failedToUpdate)
-			res.statusCode.print()
 			return
 		}
 		completion(malsponse.updatedSuccessfully)
@@ -252,65 +265,65 @@ exports.getAnime = function(animeID, completion) {
 	})
 }
 
-exports.searchAnime = function(username, password, query, completion) {
-	const url = baseUrl+method.search
-		.injectURLParam('query', encodeURIComponent(query))
-	const auth = createAuth(username, password)
+// exports.searchAnime = function(username, password, query, completion) {
+// 	const url = baseUrl+method.search
+// 		.injectURLParam('query', encodeURIComponent(query))
+// 	const auth = createAuth(username, password)
 
-	request.get({
-		url: url,
-		headers: {
-			'Authorization': auth
-		}
-	}, function(error, res, body) {
-		if (error) {
-			error.print()
-			completion(malsponse.invalidSearch)
-			return
-		}
-		const emptyCode = 204
-		if (res.statusCode === emptyCode) {
-			completion([])
-			return
-		}
-		xml2js.parseString(body, (err, result) => {
-			try {
-				if (err) {
-					completion(malsponse.failedToParse)
-					'invalidSearch'.print()
-					return
-				}
-				if (!result.anime) {
-					completion(malsponse.invalidSearch)
-					'no anime?'.print()
-					return
-				}
-				const animes = []
-				for (const item of result.anime.entry) {
-					const anime = {}
-					if (!item.id.first()) {
-						continue
-					}
-					anime.malid = item.id.first()
-					anime.title = item.title.first() !== undefined && item.title.first() !== ''? item.title.first() : '[title unknown]'
-					anime.episodes = item.episodes.first() !== undefined && Number(item.episodes.first()) !== 0 ? item.episodes.first() : '???'
-					anime.score = item.score.first() !== undefined && item.score.first() !== '0.00' ? item.score.first() : 'N/A'
-					anime.type = item.type.first() !== undefined && item.type.first() !== '' ? item.type.first() : 'Unknown'
-					anime.air_status = item.status.first() !== undefined && item.status.first() !== '' ? item.status.first() : 'Unknown'
-					anime.imageurl = item.image.first() !== undefined && item.image.first() !== '' ? item.image.first() : ''
+// 	request.get({
+// 		url: url,
+// 		headers: {
+// 			'Authorization': auth
+// 		}
+// 	}, function(error, res, body) {
+// 		if (error) {
+// 			error.print()
+// 			completion(malsponse.invalidSearch)
+// 			return
+// 		}
+// 		const emptyCode = 204
+// 		if (res.statusCode === emptyCode) {
+// 			completion([])
+// 			return
+// 		}
+// 		xml2js.parseString(body, (err, result) => {
+// 			try {
+// 				if (err) {
+// 					completion(malsponse.failedToParse)
+// 					'invalidSearch'.print()
+// 					return
+// 				}
+// 				if (!result.anime) {
+// 					completion(malsponse.invalidSearch)
+// 					'no anime?'.print()
+// 					return
+// 				}
+// 				const animes = []
+// 				for (const item of result.anime.entry) {
+// 					const anime = {}
+// 					if (!item.id.first()) {
+// 						continue
+// 					}
+// 					anime.malid = item.id.first()
+// 					anime.title = item.title.first() !== undefined && item.title.first() !== ''? item.title.first() : '[title unknown]'
+// 					anime.episodes = item.episodes.first() !== undefined && Number(item.episodes.first()) !== 0 ? item.episodes.first() : '???'
+// 					anime.score = item.score.first() !== undefined && item.score.first() !== '0.00' ? item.score.first() : 'N/A'
+// 					anime.type = item.type.first() !== undefined && item.type.first() !== '' ? item.type.first() : 'Unknown'
+// 					anime.air_status = item.status.first() !== undefined && item.status.first() !== '' ? item.status.first() : 'Unknown'
+// 					anime.imageurl = item.image.first() !== undefined && item.image.first() !== '' ? item.image.first() : ''
 
-					animes.push(anime)
-				}
-				completion(animes)
-				return
-			} catch (error) {
-				completion(malsponse.failedToParse)
-				return
-			}
-		})
-	})
+// 					animes.push(anime)
+// 				}
+// 				completion(animes)
+// 				return
+// 			} catch (error) {
+// 				completion(malsponse.failedToParse)
+// 				return
+// 			}
+// 		})
+// 	})
 
-}
+// }
 
 var runAuthRequest = function(username, password) {
 	return new Promise(function(resolve, reject) {
@@ -326,6 +339,30 @@ var runAuthRequest = function(username, password) {
 		runRequest(urlOptions)
 			.then( data => {
 				resolve(data)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
+var runSearchRequest = function(username, password, search) {
+	return new Promise(function(resolve, reject) {
+		const url = baseUrl+method.search
+			.injectURLParam('query', encodeURIComponent(search))
+		const auth = createAuth(username, password)
+		const urlOptions = {
+			url: url,
+			headers: {
+				'Authorization': auth
+			},
+			resolveWithFullResponse: true
+		}
+		runRequest(urlOptions)
+			.then( data => {
+				if (data.statusCode === StatusCodes.noContent) {
+					reject(StatusCodes.noContent)
+				}
+				resolve(data.body)
 			}).catch( err => {
 				reject(err)
 			})
@@ -356,6 +393,32 @@ function parseXml(xml) {
 
 function createAuth(username, password) {
 	return 'Basic ' + new Buffer(username + ':' + password).toString('base64')
+}
+
+function parseSearchAnime(json) {
+	return new Promise(function(resolve, reject) {
+		try {
+			const animes = []
+			for (const item of json.anime.entry) {
+				const anime = {}
+				if (!item.id.first()) {
+					continue
+				}
+				anime.malid = item.id.first()
+				anime.title = item.title.first() !== undefined && item.title.first() !== ''? item.title.first() : '[title unknown]'
+				anime.episodes = item.episodes.first() !== undefined && Number(item.episodes.first()) !== 0 ? item.episodes.first() : '???'
+				anime.score = item.score.first() !== undefined && item.score.first() !== '0.00' ? item.score.first() : 'N/A'
+				anime.type = item.type.first() !== undefined && item.type.first() !== '' ? item.type.first() : 'Unknown'
+				anime.air_status = item.status.first() !== undefined && item.status.first() !== '' ? item.status.first() : 'Unknown'
+				anime.imageurl = item.image.first() !== undefined && item.image.first() !== '' ? item.image.first() : ''
+
+				animes.push(anime)
+			}
+			resolve(animes)
+		} catch (error) {
+			reject(malsponse.failedToParse)
+		}
+	})
 }
 
 function createAnimeXML(animeData) {
