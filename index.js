@@ -42,19 +42,20 @@ app.use(function(req, res, next) {
 		res.send(StatusCodes.unauthorised, response)
 		res.end()
 	}
-	MALintent.verifyUser(username, password, (malsponse, userid) => {
-		switch (malsponse) {
-		case MALintent.malsponse.unauthorised:
-			const response = responseCreator.createError('Username or Password incorrect (or maybed the auth server is down)')
-			res.send(StatusCodes.unauthorised, response)
-			res.end()
-			break
-		case MALintent.malsponse.verified:
-			req.userid = userid
+	MALintent.verifyUser(username, password)
+		.then( () => {
 			next()
-			break
-		}
-	})
+		}).catch( err => {
+			if (err === StatusCodes.unauthorised) {
+				const response = responseCreator.createError('Invalid Username or Password')
+				res.send(StatusCodes.unauthorised, response)
+				res.end()
+			} else {
+				const response = responseCreator.createError('Unhandled error occured during the authentication process')
+				res.send(StatusCodes.badRequest, response)
+				res.end()
+			}
+		})
 })
 
 // Routes

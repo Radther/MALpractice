@@ -5,6 +5,9 @@ const request = require('request')
 const xml2js = require('xml2js')
 const cheerio = require('cheerio')
 
+const requestp = require('request-promise')
+const xml2jsp = require('xml2js-es6-promise')
+
 const baseUrl = 'https://myanimelist.net'
 const method = {
 	search: '/api/anime/search.xml?q={query}',
@@ -19,14 +22,16 @@ const method = {
 const malsponse = {
 	unauthorised: 'unauthorised',
 	verified: 'verified',
-	failedToGetList: 'failedToGetList',
-	failedToParse: 'failedToParse',
-	addedSuccessfully: 'addedSuccessfully',
-	failedToAdd: 'failedToAdd',
-	updatedSuccessfully: 'updatedSuccessfully',
-	failedToUpdate: 'failedToUpdate',
-	animeNotFound: 'animeNotFound',
-	invalidSearch: 'invalidSearch'
+	notFound: 'notFound',
+	unhandled: 'unhandled'
+	// failedToGetList: 'failedToGetList',
+	// failedToParse: 'failedToParse',
+	// addedSuccessfully: 'addedSuccessfully',
+	// failedToAdd: 'failedToAdd',
+	// updatedSuccessfully: 'updatedSuccessfully',
+	// failedToUpdate: 'failedToUpdate',
+	// animeNotFound: 'animeNotFound',
+	// invalidSearch: 'invalidSearch'
 }
 
 const animeXMLObject =
@@ -67,51 +72,23 @@ const animeXMLObjectParams = {
 	tags: 'tags'
 }
 
-// const watchStatus = {
-// 	1: 'Watching',
-// 	2: 'Completed',
-// 	3: 'On-Hold',
-// 	4: 'Dropped',
-// 	6: 'Plan to Watch'
-// }
-
 exports.malsponse = malsponse
 
-exports.verifyUser = function(username, password, completion) {
-	const url = baseUrl+method.verify
-	const auth = createAuth(username, password)
-	request.get({
-		url: url,
-		headers: {
-			'Authorization': auth
-		}
-	}, function(error, res, body) {
-		if (error) {
-			completion(malsponse.unauthorised)
-			return
-		}
-		if (body === 'Invalid credentials') {
-			completion(malsponse.unauthorised)
-			return
-		}
-		xml2js.parseString(body, (err, result) => {
-			if (err) {
-				completion(malsponse.unauthorised)
-				return
-			}
-			if (!result.user) {
-				completion(malsponse.unauthorised)
-				return
-			}
-			if (!result.user.id || !result.user.username) {
-				completion(malsponse.unauthorised)
-				return
-			}
-			if (result.user.id.first() && result.user.username.first()) {
-				completion(malsponse.verified, result.user.id.first(), result.user.username.first())
-				return
-			}
-		})
+exports.verifyUser = function(username, password) {
+	return new Promise(function(resolve, reject) {
+		runAuthRequest(username, password)
+			.then( data => {
+				return parseXml(data)
+			}).then( json => {
+				const data = {
+					response: malsponse.verified,
+					userid: json.user.id.first(),
+					username: json.user.username.first()
+				}
+				resolve(data)
+			}).catch( err => {
+				reject(err)
+			})
 	})
 }
 
@@ -333,6 +310,48 @@ exports.searchAnime = function(username, password, query, completion) {
 		})
 	})
 
+}
+
+var runAuthRequest = function(username, password) {
+	return new Promise(function(resolve, reject) {
+		const url = baseUrl+method.verify
+		const auth = createAuth(username, password)
+		const urlOptions = {
+			url: url,
+			headers: {
+				'Authorization': auth
+			}
+		}
+
+		runRequest(urlOptions)
+			.then( data => {
+				resolve(data)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
+function runRequest(options) {
+	return new Promise(function(resolve, reject) {
+		requestp.get(options)
+			.then( body => {
+				resolve(body)
+			}).catch( err => {
+				reject(err.statusCode)
+			})
+	})
+}
+
+function parseXml(xml) {
+	return new Promise(function(resolve, reject) {
+		xml2jsp(xml)
+			.then( json => {
+				resolve(json)
+			}).catch( () => {
+				reject(malsponse.failedToParse)
+			})
+	})
 }
 
 function createAuth(username, password) {
