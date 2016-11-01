@@ -4,14 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/jasmine-node spec --color --verbose --autotest --watch ."
+    "test": "node_modules/.bin/jasmine-node spec --color --verbose --autotest --watch .",
+    "coverage": "./node_modules/.bin/istanbul cover -x **spec/** -x **index.js** -x **debug.js** jasmine-node spec"
   },
   "author": "Tom Singleton",
   "dependencies": {
     "request": "^2.75.0",
     "restify": "^4.1.1",
     "xml2js": "^0.4.17",
-    "cheerio": "^0.22.0"
+    "cheerio": "^0.22.0",
+    "request-promise": "^4.1.1",
+    "xml2js-es6-promise": "^1.1.1"
   },
   "devDependencies": {
     "istanbul": "^0.4.0",

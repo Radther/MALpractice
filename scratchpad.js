@@ -3,17 +3,25 @@
 /*istanbul ignore next*/
 /* global expect */
 
-const MALintent = require('./MALintent.js')
+const request = require('request-promise')
+const xml2js = require('xml2js-es6-promise')
+require('./extensions.js')
 
-const username = 'unistudent'
-const password = '+)}/wnP.G46D63TkUKq4'
-
-describe("test", function() {
-
-	xit('verifiy the user', (done) => {
-		MALintent.verifyUser(username, password, function(result) {
-			expect(result).not.toBeNull()
-			done()
+function testPromise() {
+	return new Promise(function(resolve, reject) {
+		request.get('http://google.com')
+		.then((body, res)  => {
+			resolve(body)
+		}).catch( err => {
+			reject(err)
 		})
 	})
+}
+
+testPromise().then( data => {
+	return xml2js(data)
+}).then( json => {
+	json.print()
+}).catch( err => {
+	err.print()
 })
