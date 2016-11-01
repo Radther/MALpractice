@@ -6,28 +6,28 @@ const MALintent = require('../MALintent.js')
 const MALsponse = MALintent.malsponse
 const StatusCodes = require('../StatusCodes.js').StatusCodes
 
-const username = 'unistudent'
-const password = '+)}/wnP.G46D63TkUKq4'
+const uniUsername = 'unistudent'
+const uniPassword = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
 const userid = '5778142'
 
-describe('MALintent Intergration Tests', function() {
+describe('MALintent Intergration Tests', () => {
 
 	describe('verification tests', function() {
-		it('verifiy user success', (done) => {
-			MALintent.verifyUser(username, password)
+		it('verifiy user success', done => {
+			MALintent.verifyUser(uniUsername, uniPassword)
 				.then(data => {
 					expect(data.response).toBe(MALsponse.verified)
 					expect(data.userid).toBe(userid)
-					expect(data.username).toBe(username)
+					expect(data.username).toBe(uniUsername)
 					done()
 				}).catch( err => {
 					throw new Error(err)
 				})
 		})
 
-		it('verify user fail', (done) => {
-			MALintent.verifyUser(username, fakePassword)
+		it('verify user fail', done => {
+			MALintent.verifyUser(uniUsername, fakePassword)
 				.then( () => {
 					throw new Error('This should not be called')
 				}).catch( err => {
@@ -37,9 +37,9 @@ describe('MALintent Intergration Tests', function() {
 		})
 	})
 
-	describe('search anime tests', function() {
-		it('single word search', (done) => {
-			MALintent.searchAnime(username, password, 'fate')
+	describe('search anime tests', () => {
+		it('single word search', done => {
+			MALintent.searchAnime(uniUsername, uniPassword, 'fate')
 				.then( anime => {
 					expect(anime).not.toBeNull()
 					done()
@@ -48,8 +48,8 @@ describe('MALintent Intergration Tests', function() {
 				})
 		})
 
-		it('multi word search', (done) => {
-			MALintent.searchAnime(username, password, 'new game')
+		it('multi word search', done => {
+			MALintent.searchAnime(uniUsername, uniPassword, 'new game')
 				.then( anime => {
 					expect(anime).not.toBeNull()
 					done()
@@ -58,8 +58,8 @@ describe('MALintent Intergration Tests', function() {
 				})
 		})
 
-		it('no content search', (done) => {
-			MALintent.searchAnime(username, password, 'no content')
+		it('no content search', done => {
+			MALintent.searchAnime(uniUsername, uniPassword, 'no content')
 				.then( () => {
 					throw new Error('should be no content')
 				}).catch( err => {
@@ -70,7 +70,7 @@ describe('MALintent Intergration Tests', function() {
 	})
 
 	// describe('single anime test', function() {
-	// 	it('get single anime', (done) => {
+	// 	it('get single anime', done => {
 	// 		const animeId = 1
 	// 		MALintent.getAnime(animeId, function(result) {
 	// 			expect(result).not.toBeNull()
@@ -82,18 +82,15 @@ describe('MALintent Intergration Tests', function() {
 	// 	})
 	// })
 
-	// describe('get users list test', function() {
-	// 	it('get users list', (done) => {
-	// 		MALintent.getAnimeList(username, function(result) {
-	// 			expect(result).not.toBeNull()
-	// 			expect(result.count).not.toBeLessThan(1)
-	// 			done()
-	// 		})
-	// 	})
-	// })
-
-	// describe('xml creation test', function() {
-		
-	// })
-
+	describe('get users list test', () => {
+		it('get users list', done => {
+			MALintent.getAnimeList(uniUsername)
+				.then( data => {
+					expect(data.length).not.toBeLessThan(1)
+					done()
+				}).catch( err => {
+					throw new Error(err)
+				})
+		})
+	})
 })

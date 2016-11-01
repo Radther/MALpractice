@@ -8,12 +8,12 @@ const MALsponse = MALintent.malsponse
 const fs = require('fs')
 const StatusCodes = require('../StatusCodes.js').StatusCodes
 
-const username = 'unistudent'
-const password = '+)}/wnP.G46D63TkUKq4'
+const uniUsername = 'unistudent'
+const uniPassword = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
 const userid = '5778142'
 
-describe('MALintent Unit Tests', function() {
+describe('MALintent Unit Tests', () => {
 	describe('verification tests', function() {
 		MALintent.__set__('runAuthRequest', function(username, password) {
 			return new Promise(function(resolve, reject) {
@@ -27,12 +27,11 @@ describe('MALintent Unit Tests', function() {
 		})
 
 		it('verifiy user success', (done) => {
-			MALintent.verifyUser(username, password)
+			MALintent.verifyUser(uniUsername, uniPassword)
 				.then(data => {
-					data.print()
 					expect(data.response).toBe(MALsponse.verified)
 					expect(data.userid).toBe(userid)
-					expect(data.username).toBe(username)
+					expect(data.username).toBe(uniUsername)
 					done()
 				}).catch( err => {
 					fail(err)
@@ -40,7 +39,7 @@ describe('MALintent Unit Tests', function() {
 		})
 
 		it('verify user fail', (done) => {
-			MALintent.verifyUser(username, fakePassword)
+			MALintent.verifyUser(uniUsername, fakePassword)
 				.then( () => {
 					fail('This should not be called')
 				}).catch( err => {
@@ -50,7 +49,7 @@ describe('MALintent Unit Tests', function() {
 		})
 	})
 
-	describe('search anime tests', function() {
+	describe('search anime tests', () => {
 
 		MALintent.__set__('runSearchRequest', function(username, password, search) {
 			return new Promise(function(resolve, reject) {
@@ -67,7 +66,7 @@ describe('MALintent Unit Tests', function() {
 		})
 
 		it('single word search', (done) => {
-			MALintent.searchAnime(username, password, 'fate')
+			MALintent.searchAnime(uniUsername, uniPassword, 'fate')
 				.then( anime => {
 					expect(anime).not.toBeNull()
 					done()
@@ -77,7 +76,7 @@ describe('MALintent Unit Tests', function() {
 		})
 
 		it('multi word search', (done) => {
-			MALintent.searchAnime(username, password, 'new game')
+			MALintent.searchAnime(uniUsername, uniPassword, 'new game')
 				.then( anime => {
 					expect(anime).not.toBeNull()
 					done()
@@ -87,9 +86,45 @@ describe('MALintent Unit Tests', function() {
 		})
 
 		it('no content search', (done) => {
-			MALintent.searchAnime(username, password, 'no content')
+			MALintent.searchAnime(uniUsername, uniPassword, 'no content')
 				.then( () => {
 					fail('should be no content')
+				}).catch( err => {
+					expect(err).toBe(StatusCodes.noContent)
+					done()
+				})
+		})
+	})
+
+	describe('anime list test', () => {
+		MALintent.__set__('runGetUserAnimeRequest', function(username) {
+			return new Promise(function(resolve, reject) {
+				if (username === uniUsername+'empty') {
+					const xmlData = fs.readFileSync('./spec/fakedata/mylist/emptylist.xml')
+					resolve(xmlData)
+				} else if (username === uniUsername) {
+					const xmlData = fs.readFileSync('./spec/fakedata/mylist/fulllist.xml')
+					resolve(xmlData)
+				} else {
+					reject(StatusCodes.noContent)
+				}
+			})
+		})
+
+		it('full user data', done => {
+			MALintent.getAnimeList(uniUsername)
+				.then( data => {
+					expect(data.length).not.toBeLessThan(1)
+					done()
+				}).catch( err => {
+					throw new Error(err)
+				})
+		})
+
+		it('empty user data', done => {
+			MALintent.getAnimeList(uniUsername+'empty')
+				.then( data => {
+					throw new Error('should fail with code 204')
 				}).catch( err => {
 					expect(err).toBe(StatusCodes.noContent)
 					done()
