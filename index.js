@@ -91,17 +91,6 @@ app.get('/anime', function(req, res) {
 			}
 			res.end()
 		})
-
-	// MALintent.searchAnime(username, password, query, function(result) {
-	// 	if (result === MALintent.malsponse.invalidSearch) {
-	// 		const response = responseCreator.createError('Invalid Search')
-	// 		res.send(StatusCodes.badRequest, response)
-	// 		return
-	// 	}
-	// 	const response = responseCreator.createResponse('Search Successful', result)
-	// 	res.send(StatusCodes.ok, response)
-	// 	return
-	// })
 })
 
 // Get anime by MyAnimeList ID
@@ -166,56 +155,40 @@ app.get('/mylist/:animeID', function(req, res) {
 
 // Add an anime to users mylist
 app.post('/mylist', function(req, res) {
-	if (!req.body.malid || !req.body.status) {
-		const response = responseCreator.createError('Missing parameters')
-		res.send(StatusCodes.badRequest, response)
-		res.end()
-		return
-	}
+
 	const username = req.username
 	const password = req.authorization.basic.password
 
-	MALintent.addAnime(username, password, req.body, function(result) {
-		if (result === MALintent.malsponse.failedToAdd || result !== MALintent.malsponse.addedSuccessfully) {
-			const response = responseCreator.createError('Failed to add anime')
-			res.send(StatusCodes.badRequest, response)
-			return
-		}
-		const getUrl = '/anime/' + req.body.malid
-		const data = {
-			url: getUrl
-		}
-		const response = responseCreator.createResponse('Added Successfully', data)
-		res.send(StatusCodes.created, response)
-
-	})
+	MALintent.addAnime(username, password, req.body)
+		.then( result => {
+			res.send(StatusCodes.created, result)
+		}).catch( err => {
+			if (err === MALintent.malsponse.alreadyAdded) {
+				const response = responseCreator.createError('Already added')
+				res.send(StatusCodes.badRequest, response)
+				res.end()
+			} else {
+				const response = responseCreator.createError('Failed to add')
+				res.send(StatusCodes.badRequest, response)
+				res.end()
+			}
+		})
 })
 
 // Update an anime on a users mylist
 app.put('/mylist', function(req, res) {
-	if (!req.body.malid || !req.body.status) {
-		const response = responseCreator.createError('Missing parameters')
-		res.send(StatusCodes.badRequest, response)
-		res.end()
-		return
-	}
+
 	const username = req.username
 	const password = req.authorization.basic.password
 
-	MALintent.updateAnime(username, password, req.body, function(result) {
-		if (result === MALintent.malsponse.failedToUpdate || result !== MALintent.malsponse.updatedSuccessfully) {
-			const response = responseCreator.createError('Failed to update anime')
+	MALintent.updateAnime(username, password, req.body)
+		.then( result => {
+			res.send(StatusCodes.ok, result)
+		}).catch( err => {
+			const response = responseCreator.createError('Failed to update')
 			res.send(StatusCodes.badRequest, response)
-			return
-		}
-		const getUrl = '/anime/' + req.body.malid
-		const data = {
-			url: getUrl
-		}
-		const response = responseCreator.createResponse('Updated Successfully', data)
-		res.send(StatusCodes.created, response)
-
-	})
+			res.end()
+		})
 })
 
 // Set the port

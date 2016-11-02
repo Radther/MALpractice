@@ -204,7 +204,6 @@ describe('MALintent Unit Tests', () => {
 
 			MALintent.addAnime(uniUsername, uniPassword, animeData)
 				.then( data => {
-					data.print()
 					throw new Error('this should have errored')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.alreadyAdded)
@@ -221,10 +220,60 @@ describe('MALintent Unit Tests', () => {
 
 			MALintent.addAnime(uniUsername, uniPassword, animeData)
 				.then( data => {
-					data.print()
 					throw new Error('this should have errored')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.failedToAdd)
+					done()
+				})
+		})
+	})
+
+	describe('update anime', () => {
+
+		MALintent.__set__('runUpdateAnimeRequest', function(username, password, animeData) {
+			return new Promise(function(resolve, reject) {
+				if (animeData.malid === '1') {
+					resolve({
+						statusCode: StatusCodes.ok,
+						body: 'Updated'
+					})
+				} else {
+					resolve({
+						statusCode: StatusCodes.badRequest,
+						body: 'This anime has not been approved yet.'
+					})
+				}
+			})
+		})
+
+		it('update anime', done => {
+			const animeData = {
+				malid: '1',
+				status: '2',
+				episode: '4'
+			}
+
+			MALintent.updateAnime(uniUsername, uniPassword, animeData)
+				.then( data => {
+					expect(data).toBe(MALsponse.updatedSuccessfully)
+					done()
+				}).catch( err => {
+					err.print()
+				})
+		})
+
+		it('update unavailable anime', done => {
+			const animeData = {
+				malid: '2',
+				status: '2',
+				episode: '4'
+			}
+
+			MALintent.updateAnime(uniUsername, uniPassword, animeData)
+				.then( data => {
+					throw new Error('this should have errored')
+				}).catch( err => {
+					expect(err).toBe(MALsponse.failedToUpdate)
 					done()
 				})
 		})

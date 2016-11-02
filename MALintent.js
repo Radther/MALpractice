@@ -30,8 +30,8 @@ const malsponse = {
 	addedSuccessfully: 'addedSuccessfully',
 	failedToAdd: 'failedToAdd',
 	alreadyAdded: 'alreadyAdded',
-	// updatedSuccessfully: 'updatedSuccessfully',
-	// failedToUpdate: 'failedToUpdate',
+	updatedSuccessfully: 'updatedSuccessfully',
+	failedToUpdate: 'failedToUpdate',
 	// animeNotFound: 'animeNotFound',
 	// invalidSearch: 'invalidSearch'
 }
@@ -133,35 +133,47 @@ exports.addAnime = function(username, password, animeData) {
 	})
 }
 
-exports.updateAnime = function(username, password, animeData, completion) {
-	const id = animeData.malid
-	const xmlAnimeData = createAnimeXML(animeData)
-	const encodedXMLAnimeData = encodeURIComponent(xmlAnimeData)
-	const url = baseUrl+method.update
-		.injectURLParam('id', id)
-		.concat('?data=')
-		.concat(encodedXMLAnimeData)
-
-	const auth = createAuth(username, password)
-	request.get({
-		url: url,
-		headers: {
-			'Authorization': auth
-		}
-	}, function(error, res) {
-		if (error) {
-			completion(malsponse.failedToUpdate)
-			return
-		}
-		const successCode = 200
-		if (res.statusCode !== successCode) {
-			completion(malsponse.failedToUpdate)
-			return
-		}
-		completion(malsponse.updatedSuccessfully)
-		return
+exports.updateAnime = function(username, password, animeData) {
+	return new Promise(function(resolve, reject) {
+		runUpdateAnimeRequest(username, password, animeData)
+			.then(parseUpdateAnime)
+			.then( result => {
+				resolve(result)
+			}).catch( err => {
+				reject(err)
+			})
 	})
 }
+
+// exports.updateAnime = function(username, password, animeData, completion) {
+// 	const id = animeData.malid
+// 	const xmlAnimeData = createAnimeXML(animeData)
+// 	const encodedXMLAnimeData = encodeURIComponent(xmlAnimeData)
+// 	const url = baseUrl+method.update
+// 		.injectURLParam('id', id)
+// 		.concat('?data=')
+// 		.concat(encodedXMLAnimeData)
+
+// 	const auth = createAuth(username, password)
+// 	request.get({
+// 		url: url,
+// 		headers: {
+// 			'Authorization': auth
+// 		}
+// 	}, function(error, res) {
+// 		if (error) {
+// 			completion(malsponse.failedToUpdate)
+// 			return
+// 		}
+// 		const successCode = 200
+// 		if (res.statusCode !== successCode) {
+// 			completion(malsponse.failedToUpdate)
+// 			return
+// 		}
+// 		completion(malsponse.updatedSuccessfully)
+// 		return
+// 	})
+// }
 
 exports.getAnime = function(animeID, completion) {
 	const url = baseUrl+method.get
@@ -212,6 +224,20 @@ exports.getAnime = function(animeID, completion) {
 }
 
 // Run
+function runRequest(options) {
+	return new Promise(function(resolve, reject) {
+		options.
+			resolveWithFullResponse = true
+		options.simple = false
+		requestp.get(options)
+			.then( result => {
+				resolve(result)
+			}).catch( err => {
+				reject(err.statusCode)
+			})
+	})
+}
+
 var runAuthRequest = function(username, password) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.verify
@@ -287,6 +313,33 @@ var runAddAnimeRequest = function(username, password, animeData) {
 			.concat(encodedXmlData)
 
 		const auth = createAuth(username, password)
+		const urlOptions = {
+			url: url,
+			headers: {
+				'Authorization': auth
+			}
+		}
+
+		runRequest(urlOptions)
+			.then( result => {
+				resolve(result)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
+var runUpdateAnimeRequest = function(username, password, animeData) {
+	return new Promise(function(resolve, reject) {
+		const xmlData = createAnimeXML(animeData)
+		const encodedXmlData = encodeURIComponent(xmlData)
+
+		const url = baseUrl+method.update
+			.injectURLParam('id', animeData.malid)
+			.concat('?data=')
+			.concat(encodedXmlData)
+
+		const auth = createAuth(username, password)
 
 		const urlOptions = {
 			url: url,
@@ -304,20 +357,7 @@ var runAddAnimeRequest = function(username, password, animeData) {
 	})
 }
 
-function runRequest(options) {
-	return new Promise(function(resolve, reject) {
-		options.
-			resolveWithFullResponse = true
-		options.simple = false
-		requestp.get(options)
-			.then( result => {
-				resolve(result)
-			}).catch( err => {
-				reject(err.statusCode)
-			})
-	})
-}
-
+// Reject
 function rejectBadStatusCode(result) {
 	return new Promise(function(resolve, reject) {
 		if (result.statusCode>=StatusCodes.multipleChoices || result.statusCode<StatusCodes.ok) {
@@ -426,6 +466,16 @@ function parseAddAnime(result) {
 			reject(malsponse.alreadyAdded)
 		} else {
 			reject(malsponse.failedToAdd)
+		}
+	})
+}
+
+function parseUpdateAnime(result) {
+	return new Promise(function(resolve, reject) {
+		if (result.statusCode === StatusCodes.ok) {
+			resolve(malsponse.updatedSuccessfully)
+		} else {
+			reject(malsponse.failedToUpdate)
 		}
 	})
 }

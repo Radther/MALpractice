@@ -12,7 +12,7 @@ const uniPassword = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
 const userid = '5778142'
 
-xdescribe('MALintent Intergration Tests', () => {
+describe('MALintent Intergration Tests', () => {
 
 	describe('verification tests', function() {
 		it('verifiy user success', done => {
@@ -124,6 +124,25 @@ xdescribe('MALintent Intergration Tests', () => {
 			MALintent.addAnime(uniUsername, uniPassword, animeData)
 				.then( data => {
 					expect(data).toBe(MALsponse.addedSuccessfully)
+					done()
+				}).catch( err => {
+					err.print()
+				})
+		})
+	})
+
+	describe('update anime', () => {
+
+		it('update anime', done => {
+			const animeData = {
+				malid: '1',
+				status: '2',
+				episode: '4'
+			}
+
+			MALintent.updateAnime(uniUsername, uniPassword, animeData)
+				.then( data => {
+					expect(data).toBe(MALsponse.updatedSuccessfully)
 					done()
 				}).catch( err => {
 					err.print()
