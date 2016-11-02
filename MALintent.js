@@ -145,36 +145,6 @@ exports.updateAnime = function(username, password, animeData) {
 	})
 }
 
-// exports.updateAnime = function(username, password, animeData, completion) {
-// 	const id = animeData.malid
-// 	const xmlAnimeData = createAnimeXML(animeData)
-// 	const encodedXMLAnimeData = encodeURIComponent(xmlAnimeData)
-// 	const url = baseUrl+method.update
-// 		.injectURLParam('id', id)
-// 		.concat('?data=')
-// 		.concat(encodedXMLAnimeData)
-
-// 	const auth = createAuth(username, password)
-// 	request.get({
-// 		url: url,
-// 		headers: {
-// 			'Authorization': auth
-// 		}
-// 	}, function(error, res) {
-// 		if (error) {
-// 			completion(malsponse.failedToUpdate)
-// 			return
-// 		}
-// 		const successCode = 200
-// 		if (res.statusCode !== successCode) {
-// 			completion(malsponse.failedToUpdate)
-// 			return
-// 		}
-// 		completion(malsponse.updatedSuccessfully)
-// 		return
-// 	})
-// }
-
 exports.getAnime = function(animeID, completion) {
 	const url = baseUrl+method.get
 		.injectURLParam('id', animeID)
