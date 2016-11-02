@@ -126,51 +126,42 @@ app.get('/anime/:animeId', function(req, res) {
 
 // Get users list
 app.get('/mylist', function(req, res) {
-	MALintent.getAnimeList(req.username, function(result) {
-		switch (result) {
-		case MALintent.malsponse.unauthorised:
-		case MALintent.malsponse.failedToParse:
-		case MALintent.malsponse.failedToGetList:
-			const response = responseCreator.createError(result)
-			res.send(StatusCodes.badRequest, response)
+	MALintent.getAnimeList(req.username)
+		.then( result => {
+			const response = responseCreator.createResponse('successful', result)
+			res.send(StatusCodes.ok, response)
 			res.end()
-			return
-		}
-		const response = responseCreator.createResponse('successful', result)
-		res.send(StatusCodes.ok, response)
-		res.end()
-		return
-	})
+		}).catch( err => {
+			const response = responseCreator.createError(err)
+			res.send(response)
+			res.end()
+		})
 })
 
 // Get individual id from list
 app.get('/mylist/:animeID', function(req, res) {
-	MALintent.getAnimeList(req.username, function(result) {
-		switch (result) {
-		case MALintent.malsponse.unauthorised:
-		case MALintent.malsponse.failedToParse:
-		case MALintent.malsponse.failedToGetList:
-			const response = responseCreator.createError(result)
-			res.send(StatusCodes.badRequest, response)
-			res.end()
-			return
-		}
-		const anime = result.filter(function(item) {
-			if (item.malid === req.params.animeID) {
-				return true
+
+	MALintent.getAnimeList(req.username)
+		.then( result => {
+			const anime = result.filter(function(item) {
+				if (item.malid === req.params.animeID) {
+					return true
+				}
+				return false
+			}).first()
+			if (anime) {
+				const response = responseCreator.createResponse('successful', anime)
+				res.send(StatusCodes.ok, response)
+			} else {
+				const response = responseCreator.createError('This anime isn\'t in your list')
+				res.send(StatusCodes.notFound, response)
 			}
-			return false
-		}).first()
-		if (anime) {
-			const response = responseCreator.createResponse('successful', anime)
-			res.send(StatusCodes.ok, response)
 			res.end()
-		} else {
-			const response = responseCreator.createError('Anime isn\'t in your list')
-			res.send(StatusCodes.notFound, response)
+		}).catch( err => {
+			const response = responseCreator.createError(err)
+			res.send(response)
 			res.end()
-		}
-	})
+		})
 })
 
 // Add an anime to users mylist

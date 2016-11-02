@@ -5,6 +5,7 @@ exports.StatusCodes = {
 	created: 201,
 	accepted: 202,
 	noContent: 204,
+	multipleChoices: 300,
 	badRequest: 400,
 	unauthorised: 401,
 	notFound: 404

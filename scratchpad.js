@@ -22,13 +22,14 @@ const fakePassword = 'notARealPassword'
 function testPromise() {
 	return new Promise(function(resolve, reject) {
 		request.get({
-			url: 'https://myanimelist.net/api/anime/search.xml?q=fate%20night',
+			url: 'https://myanimelist.net/api/anime/search.xml?q=fate',
 			headers: {
 				'Authorization': 'Basic cmFkdGhlcjo0Mi5ZV3JBby5hMj1lVg=='
-			}
+			},
+			simple: false,
+			resolveWithFullResponse: true
 		})
-		.then((body, res)  => {
-			res.print()
+		.then((body)  => {
 			resolve(body)
 		}).catch( err => {
 			reject(err)

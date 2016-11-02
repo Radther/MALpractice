@@ -24,11 +24,12 @@ const malsponse = {
 	unauthorised: 'unauthorised',
 	verified: 'verified',
 	notFound: 'notFound',
-	unhandled: 'unhandled'
+	unhandled: 'unhandled',
 	// failedToGetList: 'failedToGetList',
 	// failedToParse: 'failedToParse',
-	// addedSuccessfully: 'addedSuccessfully',
-	// failedToAdd: 'failedToAdd',
+	addedSuccessfully: 'addedSuccessfully',
+	failedToAdd: 'failedToAdd',
+	alreadyAdded: 'alreadyAdded',
 	// updatedSuccessfully: 'updatedSuccessfully',
 	// failedToUpdate: 'failedToUpdate',
 	// animeNotFound: 'animeNotFound',
@@ -78,14 +79,11 @@ exports.malsponse = malsponse
 exports.verifyUser = function(username, password) {
 	return new Promise(function(resolve, reject) {
 		runAuthRequest(username, password)
+			.then(rejectBadStatusCode)
+			.then(extractBody)
+			.then(parseXml)
+			.then(parseAuthentication)
 			.then( data => {
-				return parseXml(data)
-			}).then( json => {
-				const data = {
-					response: malsponse.verified,
-					userid: json.user.id.first(),
-					username: json.user.username.first()
-				}
 				resolve(data)
 			}).catch( err => {
 				reject(err)
@@ -96,11 +94,11 @@ exports.verifyUser = function(username, password) {
 exports.searchAnime = function(username, password, query) {
 	return new Promise(function(resolve, reject) {
 		runSearchRequest(username, password, query)
-			.then( data => {
-				return parseXml(data)
-			}).then( json => {
-				return parseSearchAnime(json)
-			}).then( animes => {
+			.then(rejectBadStatusCode)
+			.then(extractBody)
+			.then(parseXml)
+			.then(parseSearchAnime)
+			.then( animes => {
 				resolve(animes)
 			}).catch( err => {
 				reject(err)
@@ -111,11 +109,11 @@ exports.searchAnime = function(username, password, query) {
 exports.getAnimeList = function(username) {
 	return new Promise(function(resolve, reject) {
 		runGetUserAnimeRequest(username)
-			.then( data => {
-				return parseXml(data)
-			}).then( json => {
-				return parseMyListAnime(json)
-			}).then( animes => {
+			.then(rejectBadStatusCode)
+			.then(extractBody)
+			.then(parseXml)
+			.then(parseMyListAnime)
+			.then( animes => {
 				resolve(animes)
 			}).catch( err => {
 				reject(err)
@@ -123,33 +121,15 @@ exports.getAnimeList = function(username) {
 	})
 }
 
-exports.addAnime = function(username, password, animeData, completion) {
-	const id = animeData.malid
-	const xmlAnimeData = createAnimeXML(animeData)
-	const encodedXMLAnimeData = encodeURIComponent(xmlAnimeData)
-	const url = baseUrl+method.add
-		.injectURLParam('id', id)
-		.concat('?data=')
-		.concat(encodedXMLAnimeData)
-
-	const auth = createAuth(username, password)
-	request.get({
-		url: url,
-		headers: {
-			'Authorization': auth
-		}
-	}, function(error, res) {
-		if (error) {
-			completion(malsponse.failedToAdd)
-			return
-		}
-		const successCode = 201
-		if (res.statusCode !== successCode) {
-			completion(malsponse.failedToAdd)
-			return
-		}
-		completion(malsponse.addedSuccessfully)
-		return
+exports.addAnime = function(username, password, animeData) {
+	return new Promise(function(resolve, reject) {
+		runAddAnimeRequest(username, password, animeData)
+			.then(parseAddAnime)
+			.then( result => {
+				resolve(result)
+			}).catch( err => {
+				reject(err)
+			})
 	})
 }
 
@@ -244,8 +224,8 @@ var runAuthRequest = function(username, password) {
 		}
 
 		runRequest(urlOptions)
-			.then( data => {
-				resolve(data)
+			.then( result => {
+				resolve(result)
 			}).catch( err => {
 				reject(err)
 			})
@@ -261,16 +241,15 @@ var runSearchRequest = function(username, password, search) {
 			url: url,
 			headers: {
 				'Authorization': auth
-			},
-			resolveWithFullResponse: true
+			}
 		}
 
 		runRequest(urlOptions)
-			.then( data => {
-				if (data.statusCode === StatusCodes.noContent) {
+			.then( result => {
+				if (result.statusCode === StatusCodes.noContent) {
 					reject(StatusCodes.noContent)
 				}
-				resolve(data.body)
+				resolve(result)
 			}).catch( err => {
 				reject(err)
 			})
@@ -286,8 +265,39 @@ var runGetUserAnimeRequest = function(username) {
 		}
 
 		runRequest(urlOptions)
-			.then( data => {
-				resolve(data)
+			.then( result => {
+				if (result.statusCode === StatusCodes.noContent) {
+					reject(StatusCodes.noContent)
+				}
+				resolve(result)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
+var runAddAnimeRequest = function(username, password, animeData) {
+	return new Promise(function(resolve, reject) {
+		const xmlData = createAnimeXML(animeData)
+		const encodedXmlData = encodeURIComponent(xmlData)
+
+		const url = baseUrl+method.add
+			.injectURLParam('id', animeData.malid)
+			.concat('?data=')
+			.concat(encodedXmlData)
+
+		const auth = createAuth(username, password)
+
+		const urlOptions = {
+			url: url,
+			headers: {
+				'Authorization': auth
+			}
+		}
+
+		runRequest(urlOptions)
+			.then( result => {
+				resolve(result)
 			}).catch( err => {
 				reject(err)
 			})
@@ -296,12 +306,37 @@ var runGetUserAnimeRequest = function(username) {
 
 function runRequest(options) {
 	return new Promise(function(resolve, reject) {
+		options.
+			resolveWithFullResponse = true
+		options.simple = false
 		requestp.get(options)
-			.then( body => {
-				resolve(body)
+			.then( result => {
+				resolve(result)
 			}).catch( err => {
 				reject(err.statusCode)
 			})
+	})
+}
+
+function rejectBadStatusCode(result) {
+	return new Promise(function(resolve, reject) {
+		if (result.statusCode>=StatusCodes.multipleChoices || result.statusCode<StatusCodes.ok) {
+			const data = result.statusCode
+			reject(data)
+		} else {
+			resolve(result)
+		}
+	})
+}
+
+// Extract
+function extractBody(result) {
+	return new Promise(function(resolve, reject) {
+		try {
+			resolve(result.body)
+		} catch (error) {
+			reject(error)
+		}
 	})
 }
 
@@ -314,6 +349,21 @@ function parseXml(xml) {
 			}).catch( () => {
 				reject(malsponse.failedToParse)
 			})
+	})
+}
+
+function parseAuthentication(json) {
+	return new Promise(function(resolve, reject) {
+		try {
+			const data = {
+				response: malsponse.verified,
+				userid: json.user.id.first(),
+				username: json.user.username.first()
+			}
+			resolve(data)
+		} catch (error) {
+			reject(malsponse.failedToParse)
+		}
 	})
 }
 
@@ -366,6 +416,18 @@ function parseMyListAnime(json) {
 			reject(malsponse.failedToParse)
 		}
  	})
+}
+
+function parseAddAnime(result) {
+	return new Promise(function(resolve, reject) {
+		if (result.statusCode === StatusCodes.created) {
+			resolve(malsponse.addedSuccessfully)
+		} else if (result.body.includes('is already in the list')) {
+			reject(malsponse.alreadyAdded)
+		} else {
+			reject(malsponse.failedToAdd)
+		}
+	})
 }
 
 // Create

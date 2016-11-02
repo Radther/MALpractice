@@ -5,13 +5,14 @@
 const MALintent = require('../MALintent.js')
 const MALsponse = MALintent.malsponse
 const StatusCodes = require('../StatusCodes.js').StatusCodes
+const requestp = require('request-promise')
 
 const uniUsername = 'unistudent'
 const uniPassword = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
 const userid = '5778142'
 
-describe('MALintent Intergration Tests', () => {
+xdescribe('MALintent Intergration Tests', () => {
 
 	describe('verification tests', function() {
 		it('verifiy user success', done => {
@@ -69,7 +70,7 @@ describe('MALintent Intergration Tests', () => {
 		})
 	})
 
-	// describe('single anime test', function() {
+	// xdescribe('single anime test', function() {
 	// 	it('get single anime', done => {
 	// 		const animeId = 1
 	// 		MALintent.getAnime(animeId, function(result) {
@@ -90,6 +91,42 @@ describe('MALintent Intergration Tests', () => {
 					done()
 				}).catch( err => {
 					throw new Error(err)
+				})
+		})
+	})
+
+	describe('add anime to list', () => {
+
+		beforeEach( done => {
+			const options = {
+				method: 'DELETE',
+				url: 'https://myanimelist.net/api/animelist/delete/1.xml',
+				headers: {
+					'Authorization': 'Basic dW5pc3R1ZGVudDorKX0vd25QLkc0NkQ2M1RrVUtxNA=='
+				}
+			}
+
+			requestp(options)
+				.then( result => {
+					done()
+				}).catch(err => {
+					err.print()
+				})
+		})
+
+		it('add new anime', done => {
+			const animeData = {
+				malid: '1',
+				status: '2',
+				episode: '4'
+			}
+
+			MALintent.addAnime(uniUsername, uniPassword, animeData)
+				.then( data => {
+					expect(data).toBe(MALsponse.addedSuccessfully)
+					done()
+				}).catch( err => {
+					err.print()
 				})
 		})
 	})
