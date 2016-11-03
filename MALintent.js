@@ -148,6 +148,7 @@ exports.getAnime = function(animeID) {
 			.then(extractBody)
 			.then(parseAnimePage)
 			.then( anime => {
+				anime.malid = animeID
 				resolve(anime)
 			}).catch( err => {
 				reject(err)
