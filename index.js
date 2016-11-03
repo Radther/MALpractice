@@ -101,16 +101,16 @@ app.get('/anime/:animeId', function(req, res) {
 	}
 
 	const id = req.params.animeId
-	MALintent.getAnime(id, function(result) {
-		if (result === MALintent.malsponse.animeNotFound) {
+	MALintent.getAnime(id)
+		.then( anime => {
+			const response = responseCreator.createResponse('Found', anime)
+			res.send(StatusCodes.ok, response)
+			res.end()
+		}).catch( () => {
 			const response = responseCreator.createError('Anime not found')
 			res.send(StatusCodes.notFound, response)
-			return
-		}
-		const response = responseCreator.createResponse('Found anime', result)
-		res.send(StatusCodes.ok, response)
-		return
-	})
+			res.end()
+		})
 })
 
 // Get users list
@@ -184,7 +184,7 @@ app.put('/mylist', function(req, res) {
 	MALintent.updateAnime(username, password, req.body)
 		.then( result => {
 			res.send(StatusCodes.ok, result)
-		}).catch( err => {
+		}).catch( () => {
 			const response = responseCreator.createError('Failed to update')
 			res.send(StatusCodes.badRequest, response)
 			res.end()

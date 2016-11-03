@@ -25,15 +25,12 @@ const malsponse = {
 	verified: 'verified',
 	notFound: 'notFound',
 	unhandled: 'unhandled',
-	// failedToGetList: 'failedToGetList',
-	// failedToParse: 'failedToParse',
 	addedSuccessfully: 'addedSuccessfully',
 	failedToAdd: 'failedToAdd',
 	alreadyAdded: 'alreadyAdded',
 	updatedSuccessfully: 'updatedSuccessfully',
 	failedToUpdate: 'failedToUpdate',
-	// animeNotFound: 'animeNotFound',
-	// invalidSearch: 'invalidSearch'
+	animeNotFound: 'animeNotFound'
 }
 
 const animeXMLObject =
@@ -145,51 +142,16 @@ exports.updateAnime = function(username, password, animeData) {
 	})
 }
 
-exports.getAnime = function(animeID, completion) {
-	const url = baseUrl+method.get
-		.injectURLParam('id', animeID)
-
-	request.get({
-		url: url
-	}, function(error, res) {
-		if (error) {
-			completion(malsponse.animeNotFound)
-			return
-		}
-		const $ = cheerio.load(res.body, {decodeEntities: false})
-		if (!($('.error404').text().trim().replace(/\s\s+/g, ' ') === '')) {
-			completion(malsponse.animeNotFound)
-			return
-		}
-		try {
-			const anime = {}
-
-			anime.title = $('h1').text()
-			anime.info = {}
-
-			$('span[class^="dark_text"]').parent().each(function(index, elem) {
-				const data = $(elem).children('span').text().replace(':','')
-				$(elem).children('span').remove()
-				$(elem).children('.statistics-info').remove()
-				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
-				anime.info[data] = item
-				if (data === 'Episodes') {
-					anime.episodes = item
-				}
+exports.getAnime = function(animeID) {
+	return new Promise(function(resolve, reject) {
+		runGetAnimeRequest(animeID)
+			.then(extractBody)
+			.then(parseAnimePage)
+			.then( anime => {
+				resolve(anime)
+			}).catch( err => {
+				reject(err)
 			})
-
-			anime.description = $('span[itemprop^="description"]').text()
-			anime.score = $('.score').text().trim().replace(/\s\s+/g, ' ')
-			anime.rank = $('.numbers.ranked').children('strong').text().trim().replace(/\s\s+/g, ' ')
-			anime.popularity = $('.numbers.popularity').children('strong').text().trim().replace(/\s\s+/g, ' ')
-			anime.members = $('.numbers.members').children('strong').text().trim().replace(/\s\s+/g, ' ')
-
-			anime.imageurl = $('[itemprop^="image"]').attr('src')
-
-			completion(anime)
-		} catch(error) {
-			completion(malsponse.animeNotFound)
-		}
 	})
 }
 
@@ -327,6 +289,24 @@ var runUpdateAnimeRequest = function(username, password, animeData) {
 	})
 }
 
+var runGetAnimeRequest = function(animeID) {
+	return new Promise(function(resolve, reject) {
+		const url = baseUrl+method.get
+			.injectURLParam('id', animeID)
+
+		const urlOptions = {
+			url: url
+		}
+
+		runRequest(urlOptions)
+			.then( result => {
+				resolve(result)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
 // Reject
 function rejectBadStatusCode(result) {
 	return new Promise(function(resolve, reject) {
@@ -446,6 +426,44 @@ function parseUpdateAnime(result) {
 			resolve(malsponse.updatedSuccessfully)
 		} else {
 			reject(malsponse.failedToUpdate)
+		}
+	})
+}
+
+function parseAnimePage(page) {
+	return new Promise(function(resolve, reject) {
+		try {
+			const $ = cheerio.load(page, {decodeEntities: false})
+			if (!($('.error404').text().trim().replace(/\s\s+/g, ' ') === '')) {
+				reject(malsponse.animeNotFound)
+			}
+			const anime = {}
+
+			anime.title = $('h1').text()
+			anime.info = {}
+
+			$('span[class^="dark_text"]').parent().each(function(index, elem) {
+				const data = $(elem).children('span').text().replace(':','')
+				$(elem).children('span').remove()
+				$(elem).children('.statistics-info').remove()
+				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
+				anime.info[data] = item
+				if (data === 'Episodes') {
+					anime.episodes = item
+				}
+			})
+
+			anime.description = $('span[itemprop^="description"]').text()
+			anime.score = $('.score').text().trim().replace(/\s\s+/g, ' ')
+			anime.rank = $('.numbers.ranked').children('strong').text().trim().replace(/\s\s+/g, ' ')
+			anime.popularity = $('.numbers.popularity').children('strong').text().trim().replace(/\s\s+/g, ' ')
+			anime.members = $('.numbers.members').children('strong').text().trim().replace(/\s\s+/g, ' ')
+
+			anime.imageurl = $('[itemprop^="image"]').attr('src')
+
+			resolve(anime)
+		} catch (error) {
+			reject(malsponse.animeNotFound)
 		}
 	})
 }

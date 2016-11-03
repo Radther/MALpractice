@@ -4,7 +4,7 @@
 /* global expect */
 
 const request = require('request-promise')
-// const xml2js = require('xml2js-es6-promise')
+const xml2js = require('xml2js-es6-promise')
 const malintent = require('./malintent.js')
 require('./extensions.js')
 
@@ -42,3 +42,5 @@ testPromise().then( data => {
 }).catch( err => {
 	err.print()
 })
+
+

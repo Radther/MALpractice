@@ -278,4 +278,54 @@ describe('MALintent Unit Tests', () => {
 				})
 		})
 	})
+
+	describe('single anime test', function() {
+
+		MALintent.__set__('runGetAnimeRequest', function(animeID) {
+			return new Promise(function(resolve, reject) {
+				if (animeID === 1) {
+					const htmlData = fs.readFileSync('./spec/fakedata/animepage/cowboybebop.html')
+					const data = {
+						statusCode: StatusCodes.ok,
+						body: htmlData
+					}
+					resolve(data)
+				} else {
+					const htmlData = fs.readFileSync('./spec/fakedata/animepage/notfound.html')
+					const data = {
+						statusCode: StatusCodes.notFound,
+						body: htmlData
+					}
+					resolve(data)
+				}
+			})
+		})
+
+		it('get single anime', done => {
+			const animeId = 1
+
+			MALintent.getAnime(animeId)
+				.then( anime => {
+					expect(anime).not.toBeNull()
+					expect(anime).not.toBe(MALsponse.animeNotFound)
+
+					expect(anime.title).toBe('Cowboy Bebop')
+					done()
+				}).catch( err => {
+					err.print()
+				})
+		})
+
+		it('get single anime 404', done => {
+			const animeId = 2
+
+			MALintent.getAnime(animeId)
+				.then( anime => {
+					throw new Error('shouldn\'t be called')
+				}).catch( err => {
+					expect(err).toBe(MALsponse.animeNotFound)
+					done()
+				})
+		})
+	})
 })

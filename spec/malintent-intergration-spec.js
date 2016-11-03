@@ -70,19 +70,6 @@ describe('MALintent Intergration Tests', () => {
 		})
 	})
 
-	// xdescribe('single anime test', function() {
-	// 	it('get single anime', done => {
-	// 		const animeId = 1
-	// 		MALintent.getAnime(animeId, function(result) {
-	// 			expect(result).not.toBeNull()
-	// 			expect(result).not.toBe(Malsponse.animeNotFound)
-
-	// 			expect(result.title).toBe('Cowboy Bebop')
-	// 			done()
-	// 		})
-	// 	})
-	// })
-
 	describe('get users list test', () => {
 		it('get users list', done => {
 			MALintent.getAnimeList(uniUsername)
@@ -146,6 +133,35 @@ describe('MALintent Intergration Tests', () => {
 					done()
 				}).catch( err => {
 					err.print()
+				})
+		})
+	})
+
+	describe('single anime test', function() {
+		it('get single anime', done => {
+			const animeId = 1
+
+			MALintent.getAnime(animeId)
+				.then( anime => {
+					expect(anime).not.toBeNull()
+					expect(anime).not.toBe(MALsponse.animeNotFound)
+
+					expect(anime.title).toBe('Cowboy Bebop')
+					done()
+				}).catch( err => {
+					err.print()
+				})
+		})
+
+		it('get single anime 404', done => {
+			const animeId = 2
+
+			MALintent.getAnime(animeId)
+				.then( anime => {
+					throw new Error('shouldn\'t be called')
+				}).catch( err => {
+					expect(err).toBe(MALsponse.animeNotFound)
+					done()
 				})
 		})
 	})
