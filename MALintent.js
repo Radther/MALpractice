@@ -400,6 +400,9 @@ function parseMyListAnime(json) {
 				anime.my_watch_status = watch_status_code
 				anime.my_last_updated = Number(item.my_last_updated.first())
 				anime.my_score = Number(item.my_score.first())
+				anime.series_type = item.series_type.first()
+				anime.series_episodes = item.series_episodes.first()
+				anime.series_image = item.series_image.first()
 				animes.push(anime)
 			}
 			resolve(animes)
