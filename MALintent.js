@@ -447,9 +447,10 @@ function parseAnimePage(page) {
 			anime.info = {}
 
 			$('span[class^="dark_text"]').parent().each(function(index, elem) {
-				const data = $(elem).children('span').text().replace(':','')
-				$(elem).children('span').remove()
+				const data = $(elem).children('span[class^="dark_text"]').text().replace(':','')
+				$(elem).children('span[class^="dark_text"]').remove()
 				$(elem).children('.statistics-info').remove()
+				$(elem).children('sup').remove()
 				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
 				anime.info[data] = item
 				if (data === 'Episodes') {
