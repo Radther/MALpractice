@@ -171,7 +171,7 @@ function runRequest(options) {
 	})
 }
 
-var runAuthRequest = function(username, password) {
+let runAuthRequest = function(username, password) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.verify
 		const auth = createAuth(username, password)
@@ -191,7 +191,7 @@ var runAuthRequest = function(username, password) {
 	})
 }
 
-var runSearchRequest = function(username, password, search) {
+let runSearchRequest = function(username, password, search) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.search
 			.injectURLParam('query', encodeURIComponent(search))
@@ -215,7 +215,7 @@ var runSearchRequest = function(username, password, search) {
 	})
 }
 
-var runGetUserAnimeRequest = function(username) {
+let runGetUserAnimeRequest = function(username) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.list
 			.injectURLParam('username', username)
@@ -235,7 +235,7 @@ var runGetUserAnimeRequest = function(username) {
 	})
 }
 
-var runAddAnimeRequest = function(username, password, animeData) {
+let runAddAnimeRequest = function(username, password, animeData) {
 	return new Promise(function(resolve, reject) {
 		const xmlData = createAnimeXML(animeData)
 		const encodedXmlData = encodeURIComponent(xmlData)
@@ -262,7 +262,7 @@ var runAddAnimeRequest = function(username, password, animeData) {
 	})
 }
 
-var runUpdateAnimeRequest = function(username, password, animeData) {
+let runUpdateAnimeRequest = function(username, password, animeData) {
 	return new Promise(function(resolve, reject) {
 		const xmlData = createAnimeXML(animeData)
 		const encodedXmlData = encodeURIComponent(xmlData)
@@ -290,7 +290,7 @@ var runUpdateAnimeRequest = function(username, password, animeData) {
 	})
 }
 
-var runGetAnimeRequest = function(animeID) {
+let runGetAnimeRequest = function(animeID) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.get
 			.injectURLParam('id', animeID)

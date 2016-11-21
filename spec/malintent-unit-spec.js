@@ -16,7 +16,7 @@ const userid = '5778142'
 describe('MALintent Unit Tests', () => {
 	describe('verification tests', function() {
 		MALintent.__set__('runAuthRequest', function(username, password) {
-			return new Promise(function(resolve, reject) {
+			return new Promise(function(resolve) {
 				if (password === fakePassword) {
 					const data = {
 						statusCode: StatusCodes.unauthorised,
@@ -159,7 +159,7 @@ describe('MALintent Unit Tests', () => {
 	describe('add anime to list', () => {
 
 		MALintent.__set__('runAddAnimeRequest', function(username, password, animeData) {
-			return new Promise(function(resolve, reject) {
+			return new Promise(function(resolve) {
 				if (animeData.malid === '1') {
 					resolve({
 						statusCode: StatusCodes.created,
@@ -231,7 +231,7 @@ describe('MALintent Unit Tests', () => {
 	describe('update anime', () => {
 
 		MALintent.__set__('runUpdateAnimeRequest', function(username, password, animeData) {
-			return new Promise(function(resolve, reject) {
+			return new Promise(function(resolve) {
 				if (animeData.malid === '1') {
 					resolve({
 						statusCode: StatusCodes.ok,
@@ -282,7 +282,7 @@ describe('MALintent Unit Tests', () => {
 	describe('single anime test', function() {
 
 		MALintent.__set__('runGetAnimeRequest', function(animeID) {
-			return new Promise(function(resolve, reject) {
+			return new Promise(function(resolve) {
 				if (animeID === 1) {
 					const htmlData = fs.readFileSync('./spec/fakedata/animepage/cowboybebop.html')
 					const data = {
