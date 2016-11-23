@@ -1,8 +1,6 @@
 'use strict'
 
 require('./extensions.js')
-const request = require('request')
-const xml2js = require('xml2js')
 const cheerio = require('cheerio')
 
 const requestp = require('request-promise')

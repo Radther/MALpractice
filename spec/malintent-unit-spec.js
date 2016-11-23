@@ -22,6 +22,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.unauthorised,
 						body: ''
 					}
+
 					resolve(data)
 				} else {
 					const xmlData = fs.readFileSync('./spec/fakedata/authentication/valid.xml', 'utf8')
@@ -29,6 +30,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.ok,
 						body: xmlData
 					}
+
 					resolve(data)
 				}
 			})
@@ -69,6 +71,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.ok,
 						body: xmlData
 					}
+
 					resolve(data)
 				} else {
 					const xmlData = fs.readFileSync('./spec/fakedata/search/single.xml', 'utf8')
@@ -76,6 +79,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.ok,
 						body: xmlData
 					}
+
 					resolve(data)
 				}
 			})
@@ -121,6 +125,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.ok,
 						body: xmlData
 					}
+
 					resolve(data)
 				} else if (username === uniUsername) {
 					const xmlData = fs.readFileSync('./spec/fakedata/mylist/fulllist.xml')
@@ -128,6 +133,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.ok,
 						body: xmlData
 					}
+
 					resolve(data)
 				} else {
 					reject(StatusCodes.noContent)
@@ -147,7 +153,7 @@ describe('MALintent Unit Tests', () => {
 
 		it('empty user data', done => {
 			MALintent.getAnimeList(uniUsername+'empty')
-				.then( data => {
+				.then( () => {
 					throw new Error('should fail with code 204')
 				}).catch( err => {
 					expect(err).toBe(StatusCodes.noContent)
@@ -203,7 +209,7 @@ describe('MALintent Unit Tests', () => {
 			}
 
 			MALintent.addAnime(uniUsername, uniPassword, animeData)
-				.then( data => {
+				.then( () => {
 					throw new Error('this should have errored')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.alreadyAdded)
@@ -219,7 +225,7 @@ describe('MALintent Unit Tests', () => {
 			}
 
 			MALintent.addAnime(uniUsername, uniPassword, animeData)
-				.then( data => {
+				.then( () => {
 					throw new Error('this should have errored')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.failedToAdd)
@@ -270,7 +276,7 @@ describe('MALintent Unit Tests', () => {
 			}
 
 			MALintent.updateAnime(uniUsername, uniPassword, animeData)
-				.then( data => {
+				.then( () => {
 					throw new Error('this should have errored')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.failedToUpdate)
@@ -289,6 +295,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.ok,
 						body: htmlData
 					}
+
 					resolve(data)
 				} else {
 					const htmlData = fs.readFileSync('./spec/fakedata/animepage/notfound.html')
@@ -296,6 +303,7 @@ describe('MALintent Unit Tests', () => {
 						statusCode: StatusCodes.notFound,
 						body: htmlData
 					}
+
 					resolve(data)
 				}
 			})
@@ -320,7 +328,7 @@ describe('MALintent Unit Tests', () => {
 			const animeId = 2
 
 			MALintent.getAnime(animeId)
-				.then( anime => {
+				.then( () => {
 					throw new Error('shouldn\'t be called')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.animeNotFound)

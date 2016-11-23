@@ -94,7 +94,7 @@ describe('MALintent Intergration Tests', () => {
 			}
 
 			requestp(options)
-				.then( result => {
+				.then( () => {
 					done()
 				}).catch(err => {
 					err.print()
@@ -157,7 +157,7 @@ describe('MALintent Intergration Tests', () => {
 			const animeId = 2
 
 			MALintent.getAnime(animeId)
-				.then( anime => {
+				.then( () => {
 					throw new Error('shouldn\'t be called')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.animeNotFound)
