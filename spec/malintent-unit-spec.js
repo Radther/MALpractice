@@ -36,7 +36,7 @@ describe('MALintent Unit Tests', () => {
 			})
 		})
 
-		xit('verifiy user success', (done) => {
+		it('verifiy user success', (done) => {
 			MALintent.verifyUser(uniUsername, uniPassword)
 				.then(data => {
 					expect(data.response).toBe(MALsponse.verified)
