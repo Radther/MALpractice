@@ -311,6 +311,7 @@ function rejectBadStatusCode(result) {
 	return new Promise(function(resolve, reject) {
 		if (result.statusCode>=StatusCodes.multipleChoices || result.statusCode<StatusCodes.ok) {
 			const data = result.statusCode
+
 			reject(data)
 		} else {
 			resolve(result)
@@ -349,6 +350,7 @@ function parseAuthentication(json) {
 				userid: json.user.id.first(),
 				username: json.user.username.first()
 			}
+
 			resolve(data)
 		} catch (error) {
 			reject(malsponse.failedToParse)
@@ -360,8 +362,10 @@ function parseSearchAnime(json) {
 	return new Promise(function(resolve, reject) {
 		try {
 			const animes = []
+
 			for (const item of json.anime.entry) {
 				const anime = {}
+
 				if (!item.id.first()) {
 					continue
 				}
@@ -386,15 +390,19 @@ function parseMyListAnime(json) {
 	return new Promise(function(resolve, reject) {
 		try {
 			const animes = []
+
 			if (!json.myanimelist.anime) {
 				reject(StatusCodes.noContent)
 			}
 			for(const item of json.myanimelist.anime) {
 				const anime = {}
+
 				anime.malid = item.series_animedb_id.first()
 				anime.title = item.series_title.first() || '[title unknown]'
 				anime.my_watched_episodes = Number(item.my_watched_episodes.first())
+
 				const watch_status_code = Number(item.my_status.first())
+
 				anime.my_watch_status = watch_status_code
 				anime.my_last_updated = Number(item.my_last_updated.first())
 				anime.my_score = Number(item.my_score.first())
@@ -436,6 +444,7 @@ function parseAnimePage(page) {
 	return new Promise(function(resolve, reject) {
 		try {
 			const $ = cheerio.load(page, {decodeEntities: false})
+
 			if (!($('.error404').text().trim().replace(/\s\s+/g, ' ') === '')) {
 				reject(malsponse.animeNotFound)
 			}
@@ -446,10 +455,12 @@ function parseAnimePage(page) {
 
 			$('span[class^="dark_text"]').parent().each(function(index, elem) {
 				const data = $(elem).children('span[class^="dark_text"]').text().replace(':','')
+
 				$(elem).children('span[class^="dark_text"]').remove()
 				$(elem).children('.statistics-info').remove()
 				$(elem).children('sup').remove()
 				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
+
 				anime.info[data] = item
 				if (data === 'Episodes') {
 					anime.episodes = item

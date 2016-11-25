@@ -23,6 +23,7 @@ const defaultPort = 8080
 app.use(function(req, res, next) {
 	if (!req.authorization.basic) {
 		const response = responseCreator.createError('basic auth not provided')
+
 		res.send(StatusCodes.unauthorised, response)
 		res.end()
 	}
@@ -136,6 +137,7 @@ app.get('/mylist', function(req, res) {
 			res.end()
 		}).catch( err => {
 			const response = responseCreator.createError(err)
+
 			res.send(response)
 			res.end()
 		})
