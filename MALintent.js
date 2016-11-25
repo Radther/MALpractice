@@ -71,6 +71,12 @@ const animeXMLObjectParams = {
 
 exports.malsponse = malsponse
 
+/**
+ * Verifies a users details
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @return {Promise}          a promise that resolves the auth data
+ */
 exports.verifyUser = function(username, password) {
 	return new Promise(function(resolve, reject) {
 		runAuthRequest(username, password)
@@ -86,6 +92,13 @@ exports.verifyUser = function(username, password) {
 	})
 }
 
+/**
+ * Searches anime on the MAL website
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @param  {String} query    the query string to look for
+ * @return {Promise}          a promise that resolves a list of anime
+ */
 exports.searchAnime = function(username, password, query) {
 	return new Promise(function(resolve, reject) {
 		runSearchRequest(username, password, query)
@@ -101,6 +114,11 @@ exports.searchAnime = function(username, password, query) {
 	})
 }
 
+/**
+ * Gets a users list
+ * @param  {String} username the users username
+ * @return {Promise}          a promise that resolves a list of anime
+ */
 exports.getAnimeList = function(username) {
 	return new Promise(function(resolve, reject) {
 		runGetUserAnimeRequest(username)
@@ -116,6 +134,13 @@ exports.getAnimeList = function(username) {
 	})
 }
 
+/**
+ * Add an anime to a users list
+ * @param {String} username  the users username
+ * @param {String} password  the users password
+ * @param {JSON} animeData  the anime data to add
+ * @return {Promise}		  a promise that resolves the success
+ */
 exports.addAnime = function(username, password, animeData) {
 	return new Promise(function(resolve, reject) {
 		runAddAnimeRequest(username, password, animeData)
@@ -128,6 +153,13 @@ exports.addAnime = function(username, password, animeData) {
 	})
 }
 
+/**
+ * Update an anime on a users list
+ * @param  {String} username  the users username
+ * @param  {String} password  the users password
+ * @param  {JSON} animeData the anime data to update
+ * @return {Promise}           a promise that resolves the success
+ */
 exports.updateAnime = function(username, password, animeData) {
 	return new Promise(function(resolve, reject) {
 		runUpdateAnimeRequest(username, password, animeData)
@@ -140,6 +172,11 @@ exports.updateAnime = function(username, password, animeData) {
 	})
 }
 
+/**
+ * Get a single anime
+ * @param  {String} animeID the id of the anime to get
+ * @return {Promise}         a promise that resolves the anime data
+ */
 exports.getAnime = function(animeID) {
 	return new Promise(function(resolve, reject) {
 		runGetAnimeRequest(animeID)
@@ -154,7 +191,11 @@ exports.getAnime = function(animeID) {
 	})
 }
 
-// Run
+/**
+ * Runs a request based on the options given
+ * @param  {JSON} options the options of the request
+ * @return {Promise}         a promise that resolves the result of the request
+ */
 function runRequest(options) {
 	return new Promise(function(resolve, reject) {
 		options.
@@ -169,6 +210,12 @@ function runRequest(options) {
 	})
 }
 
+/**
+ * Run an authentication request
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @return {Promise}          a promise that resolves the auth data
+ */
 let runAuthRequest = function(username, password) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.verify
@@ -189,6 +236,13 @@ let runAuthRequest = function(username, password) {
 	})
 }
 
+/**
+ * Run a search request
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @param  {String} search   the search query
+ * @return {Promise}          a promise that resolves the search data
+ */
 let runSearchRequest = function(username, password, search) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.search
@@ -213,6 +267,11 @@ let runSearchRequest = function(username, password, search) {
 	})
 }
 
+/**
+ * Runs a user list request
+ * @param  {String} username the users username
+ * @return {Promise}          a promise that resolves the users list
+ */
 let runGetUserAnimeRequest = function(username) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.list
@@ -233,6 +292,13 @@ let runGetUserAnimeRequest = function(username) {
 	})
 }
 
+/**
+ * Runs the add anime request
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @param  {JSON} animeData the details of the anime to add
+ * @return {Promise}           a promise that resolves the success of the operation
+ */
 let runAddAnimeRequest = function(username, password, animeData) {
 	return new Promise(function(resolve, reject) {
 		const xmlData = createAnimeXML(animeData)
@@ -260,6 +326,13 @@ let runAddAnimeRequest = function(username, password, animeData) {
 	})
 }
 
+/**
+ * Runs the update anime request
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @param  {JSON} animeData the details of the anime to update
+ * @return {Promise}           a promise that resolves the success of the operation
+ */
 let runUpdateAnimeRequest = function(username, password, animeData) {
 	return new Promise(function(resolve, reject) {
 		const xmlData = createAnimeXML(animeData)
@@ -288,6 +361,11 @@ let runUpdateAnimeRequest = function(username, password, animeData) {
 	})
 }
 
+/**
+ * Run get anime details request
+ * @param  {String} animeID the animes ID
+ * @return {Promise}         a promise that resolves the anime data
+ */
 let runGetAnimeRequest = function(animeID) {
 	return new Promise(function(resolve, reject) {
 		const url = baseUrl+method.get
@@ -306,7 +384,11 @@ let runGetAnimeRequest = function(animeID) {
 	})
 }
 
-// Reject
+/**
+ * Rejects the result if the status code is bad
+ * @param  {JSON} result result of a request
+ * @return {Promise}        a promise that resolves the result if it has a good status code
+ */
 function rejectBadStatusCode(result) {
 	return new Promise(function(resolve, reject) {
 		if (result.statusCode>=StatusCodes.multipleChoices || result.statusCode<StatusCodes.ok) {
@@ -319,7 +401,11 @@ function rejectBadStatusCode(result) {
 	})
 }
 
-// Extract
+/**
+ * Extracts the body from a request
+ * @param  {JSON} result the request object
+ * @return {Promise}        a promise that resolves the requests body
+ */
 function extractBody(result) {
 	return new Promise(function(resolve, reject) {
 		try {
@@ -330,7 +416,11 @@ function extractBody(result) {
 	})
 }
 
-// Parse
+/**
+ * Turns XML data into JSON
+ * @param  {String} xml string representation of XML data
+ * @return {Promise}     a promise that resolves the JSON representation of the passed in XML
+ */
 function parseXml(xml) {
 	return new Promise(function(resolve, reject) {
 		xml2jsp(xml)
@@ -342,6 +432,11 @@ function parseXml(xml) {
 	})
 }
 
+/**
+ * Parses authentication data
+ * @param  {JSON} json json data of authentication
+ * @return {Promise}      a promise that resolves a neater version of the authentication data
+ */
 function parseAuthentication(json) {
 	return new Promise(function(resolve, reject) {
 		try {
@@ -358,6 +453,11 @@ function parseAuthentication(json) {
 	})
 }
 
+/**
+ * Parses search anime data
+ * @param  {JSON} json search data from a search request
+ * @return {Promise}      a promise that resolves a neater version of the search data
+ */
 function parseSearchAnime(json) {
 	return new Promise(function(resolve, reject) {
 		try {
@@ -386,6 +486,11 @@ function parseSearchAnime(json) {
 	})
 }
 
+/**
+ * Parses a users list data
+ * @param  {JSON} json user list data
+ * @return {Promise}      a promise that resolves a neater version of the list data
+ */
 function parseMyListAnime(json) {
 	return new Promise(function(resolve, reject) {
 		try {
@@ -418,6 +523,11 @@ function parseMyListAnime(json) {
  	})
 }
 
+/**
+ * Parses the data from an add anime request
+ * @param  {JSON} result the data from an add anime request
+ * @return {Promise}        a promise that resolves a neater version of the add anime data
+ */
 function parseAddAnime(result) {
 	return new Promise(function(resolve, reject) {
 		if (result.statusCode === StatusCodes.created) {
@@ -430,6 +540,11 @@ function parseAddAnime(result) {
 	})
 }
 
+/**
+ * Parses the data from an update anime request
+ * @param  {JSON} result the data from an update anime request
+ * @return {Promise}        a promise that resolves a neater version of the update anime data
+ */
 function parseUpdateAnime(result) {
 	return new Promise(function(resolve, reject) {
 		if (result.statusCode === StatusCodes.ok) {
@@ -440,6 +555,11 @@ function parseUpdateAnime(result) {
 	})
 }
 
+/**
+ * Parses the data from a get anime page request
+ * @param  {HTML} page the HTML of an anime page
+ * @return {Promise}      a promise that resolves JSON data extracted from the page
+ */
 function parseAnimePage(page) {
 	return new Promise(function(resolve, reject) {
 		try {
@@ -482,11 +602,21 @@ function parseAnimePage(page) {
 	})
 }
 
-// Create
+/**
+ * Create an auth string from the users details
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @return {String}			encoded string
+ */
 function createAuth(username, password) {
 	return 'Basic ' + new Buffer(username + ':' + password).toString('base64')
 }
 
+/**
+ * Create XML data from anime JSON
+ * @param  {JSON} animeData the json data to be converted to XML
+ * @return {XML}           XML data from the JSON data
+ */
 function createAnimeXML(animeData) {
 	const xmlAnimeData =
 		animeXMLObject

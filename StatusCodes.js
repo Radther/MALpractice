@@ -1,5 +1,9 @@
 'use strict'
 
+/**
+ * Status codes
+ * @type {Object}
+ */
 exports.StatusCodes = {
 	ok: 200,
 	created: 201,

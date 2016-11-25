@@ -14,6 +14,12 @@ const method = {
 	mylist: '/mylist'
 }
 
+/**
+ * Creates a base64 encoded authorisation
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @return {String}          the encoded username and password
+ */
 function createAuth(username, password) {
 	return 'Basic ' + new Buffer(username + ':' + password).toString('base64')
 }
