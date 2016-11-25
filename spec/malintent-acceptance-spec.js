@@ -7,7 +7,6 @@ const StatusCodes = require('../StatusCodes.js').StatusCodes
 const uniUsername = 'unistudent'
 const uniPassword = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
-const userid = '5778142'
 
 const baseUrl = 'http://localhost:8080'
 const method = {
@@ -29,6 +28,13 @@ frisby.create('authenticate user with correct details')
 	.head(baseUrl+method.anime)
 	.expectStatus(StatusCodes.ok)
 	.toss()
+
+frisby.create('authentication with incorrect details')
+	.head(baseUrl+method.anime)
+	.addHeader('Authorization', createAuth(uniUsername, fakePassword))
+	.expectStatus(StatusCodes.unauthorised)
+	.toss()
+
 
 frisby.create('search anime')
 	.get(baseUrl+method.anime+'?q=fate')
