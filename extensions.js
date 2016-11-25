@@ -7,7 +7,7 @@ Object.prototype.print = function() {
 Array.prototype.print = function() {
 	for (let i = this.length - 1; i >= 0; i--) {
 		const item = this[i]
-		
+
 		item.print()
 	}
 }

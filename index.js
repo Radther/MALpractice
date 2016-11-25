@@ -202,11 +202,13 @@ app.put('/mylist', function(req, res) {
 	const password = req.authorization.basic.password
 
 	MALintent.updateAnime(username, password, req.body)
-		.then( result => {
-			res.send(StatusCodes.ok, result)
+		.then( () => {
+			const response = responseCreator.createResponse('updated')
+
+			res.send(StatusCodes.ok, response)
 		}).catch( () => {
 			const response = responseCreator.createError('Failed to update')
-			
+
 			res.send(StatusCodes.badRequest, response)
 			res.end()
 		})
