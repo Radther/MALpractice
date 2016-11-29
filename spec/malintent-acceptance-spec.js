@@ -30,105 +30,107 @@ frisby.globalSetup({
 	}
 })
 
-frisby.create('authenticate user with correct details')
-	.head(baseUrl+method.anime)
-	.expectStatus(StatusCodes.ok)
-	.toss()
+describe('acceptance tests', () => {
+	frisby.create('authenticate user with correct details')
+		.head(baseUrl+method.anime)
+		.expectStatus(StatusCodes.ok)
+		.toss()
 
-frisby.create('authentication with incorrect details')
-	.head(baseUrl+method.anime)
-	.addHeader('Authorization', createAuth(uniUsername, fakePassword))
-	.expectStatus(StatusCodes.unauthorised)
-	.toss()
+	frisby.create('authentication with incorrect details')
+		.head(baseUrl+method.anime)
+		.addHeader('Authorization', createAuth(uniUsername, fakePassword))
+		.expectStatus(StatusCodes.unauthorised)
+		.toss()
 
 
-frisby.create('search anime')
-	.get(baseUrl+method.anime+'?q=fate')
-	.expectStatus(StatusCodes.ok)
-	.expectHeaderContains('Content-Type', 'application/json')
-	.expectJSONTypes({
-		status: String,
-		message: String,
-		data: Array
-	})
-	.toss()
+	frisby.create('search anime')
+		.get(baseUrl+method.anime+'?q=fate')
+		.expectStatus(StatusCodes.ok)
+		.expectHeaderContains('Content-Type', 'application/json')
+		.expectJSONTypes({
+			status: String,
+			message: String,
+			data: Array
+		})
+		.toss()
 
-frisby.create('get anime by id')
-	.get(baseUrl+method.anime+'/1')
-	.expectStatus(StatusCodes.ok)
-	.expectHeaderContains('Content-Type', 'application/json')
-	.expectJSONTypes({
-		status: String,
-		message: String,
-		data: Object
-	})
-	.expectJSONTypes('data', {
-		title: String,
-		info: Object,
-		episodes: String,
-		description: String,
-		score: String,
-		rank: String,
-		popularity: String,
-		members: String,
-		imageurl: String,
-		malid: String
-	})
-	.toss()
+	frisby.create('get anime by id')
+		.get(baseUrl+method.anime+'/1')
+		.expectStatus(StatusCodes.ok)
+		.expectHeaderContains('Content-Type', 'application/json')
+		.expectJSONTypes({
+			status: String,
+			message: String,
+			data: Object
+		})
+		.expectJSONTypes('data', {
+			title: String,
+			info: Object,
+			episodes: String,
+			description: String,
+			score: String,
+			rank: String,
+			popularity: String,
+			members: String,
+			imageurl: String,
+			malid: String
+		})
+		.toss()
 
-frisby.create('get users list')
-	.get(baseUrl+method.mylist)
-	.expectStatus(StatusCodes.ok)
-	.expectHeaderContains('Content-Type', 'application/json')
-	.expectJSONTypes({
-		status: String,
-		message: String,
-		data: Array
-	})
-	.expectJSONTypes('data.0', {
-		malid: String,
-		title: String,
-		my_watch_status: Number,
-		my_last_updated: Number,
-		my_score: Number,
-		series_type: Number,
-		series_episodes: Number,
-		series_image: String
-	})
-	.toss()
+	frisby.create('get users list')
+		.get(baseUrl+method.mylist)
+		.expectStatus(StatusCodes.ok)
+		.expectHeaderContains('Content-Type', 'application/json')
+		.expectJSONTypes({
+			status: String,
+			message: String,
+			data: Array
+		})
+		.expectJSONTypes('data.0', {
+			malid: String,
+			title: String,
+			my_watch_status: Number,
+			my_last_updated: Number,
+			my_score: Number,
+			series_type: Number,
+			series_episodes: Number,
+			series_image: String
+		})
+		.toss()
 
-frisby.create('get sinlge anime from a users list')
-	.get(baseUrl+method.mylist+'/1')
-	.expectStatus(StatusCodes.ok)
-	.expectHeaderContains('Content-Type', 'application/json')
-	.expectJSONTypes({
-		status: String,
-		message: String,
-		data: Object
-	})
-	.expectJSONTypes('data', {
-		malid: String,
-		title: String,
-		my_watched_episodes: Number,
-		my_watch_status: Number,
-		my_last_updated: Number,
-		my_score: Number,
-		series_type: Number,
-		series_episodes: Number,
-		series_image: String
-	})
-	.toss()
+	frisby.create('get sinlge anime from a users list')
+		.get(baseUrl+method.mylist+'/1')
+		.expectStatus(StatusCodes.ok)
+		.expectHeaderContains('Content-Type', 'application/json')
+		.expectJSONTypes({
+			status: String,
+			message: String,
+			data: Object
+		})
+		.expectJSONTypes('data', {
+			malid: String,
+			title: String,
+			my_watched_episodes: Number,
+			my_watch_status: Number,
+			my_last_updated: Number,
+			my_score: Number,
+			series_type: Number,
+			series_episodes: Number,
+			series_image: String
+		})
+		.toss()
 
-frisby.create('update an anime on the list')
-	.put(baseUrl+method.mylist, {
-		malid: 1,
-		status: 2,
-		episode: 0
-	}, {json: true})
-	.expectStatus(StatusCodes.ok)
-	.expectHeaderContains('Content-Type', 'application/json')
-	.expectJSON({
-		status: 'Success',
-		message: 'updated'
-	})
-	.toss()
+	frisby.create('update an anime on the list')
+		.put(baseUrl+method.mylist, {
+			malid: 1,
+			status: 2,
+			episode: 0
+		}, {json: true})
+		.expectStatus(StatusCodes.ok)
+		.expectHeaderContains('Content-Type', 'application/json')
+		.expectJSON({
+			status: 'Success',
+			message: 'updated'
+		})
+		.toss()
+})
