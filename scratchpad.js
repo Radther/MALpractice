@@ -5,9 +5,9 @@
 
 const request = require('request-promise')
 const xml2js = require('xml2js-es6-promise')
-const malintent = require('./malintent.js')
+const malintent = require('./modules/malintent.js')
 const storage = require('node-persist')
-require('./extensions.js')
+require('./modules/extensions.js')
 
 const username = 'unistudent'
 const password = '+)}/wnP.G46D63TkUKq4'

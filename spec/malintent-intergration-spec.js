@@ -2,9 +2,9 @@
 /*istanbul ignore next*/
 /* global expect */
 
-const MALintent = require('../MALintent.js')
+const MALintent = require('../modules/MALintent.js')
 const MALsponse = MALintent.malsponse
-const StatusCodes = require('../StatusCodes.js').StatusCodes
+const StatusCodes = require('../modules/StatusCodes.js').StatusCodes
 const requestp = require('request-promise')
 
 const uniUsername = 'unistudent'

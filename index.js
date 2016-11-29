@@ -1,11 +1,11 @@
 'use strict'
 
 // Import
-require('./extensions.js')
+require('./modules/extensions.js')
 const rest = require('restify')
-const responseCreator = require('./response-creator.js')
-const MALintent = require('./MALintent.js')
-const StatusCodes = require('./StatusCodes.js').StatusCodes
+const responseCreator = require('./modules/response-creator.js')
+const MALintent = require('./modules/MALintent.js')
+const StatusCodes = require('./modules/StatusCodes.js').StatusCodes
 
 // Create Server
 const app = rest.createServer()

@@ -3,10 +3,10 @@
 /* global expect */
 
 const rewire = require('rewire')
-const MALintent = rewire('../MALintent.js')
+const MALintent = rewire('../modules/MALintent.js')
 const MALsponse = MALintent.malsponse
 const fs = require('fs')
-const StatusCodes = require('../StatusCodes.js').StatusCodes
+const StatusCodes = require('../modules/StatusCodes.js').StatusCodes
 
 const uniUsername = 'unistudent'
 const uniPassword = '+)}/wnP.G46D63TkUKq4'

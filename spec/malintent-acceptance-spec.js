@@ -2,7 +2,7 @@
 
 const frisby = require('frisby')
 
-const StatusCodes = require('../StatusCodes.js').StatusCodes
+const StatusCodes = require('../modules/StatusCodes.js').StatusCodes
 
 const uniUsername = 'unistudent'
 const uniPassword = '+)}/wnP.G46D63TkUKq4'
@@ -125,7 +125,6 @@ frisby.create('update an anime on the list')
 		status: 2,
 		episode: 0
 	}, {json: true})
-	.inspectRequest()
 	.expectStatus(StatusCodes.ok)
 	.expectHeaderContains('Content-Type', 'application/json')
 	.expectJSON({
