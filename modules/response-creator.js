@@ -4,14 +4,20 @@
  * Creates a success response with data
  * @param  {String} message the message included in the response
  * @param  {Any} data    the data of the response
+ * @param  {request} req the request of the response
  * @return {JSON}         the JSON response
  */
-exports.createResponse = function(message, data) {
-	return {
+exports.createResponse = function(message, data, req) {
+	const response = {
 		status: 'Success',
 		message: message,
-		data: data
+		_embedded: data
 	}
+
+	if (req !== undefined) {
+		response.hateifyLink('self', req._url.href)
+	}
+	return response
 }
 
 /**

@@ -2,6 +2,7 @@
 
 // Import
 require('./modules/extensions.js')
+require('./modules/hateify.js')
 const rest = require('restify')
 const responseCreator = require('./modules/response-creator.js')
 const MALintent = require('./modules/MALintent.js')
@@ -85,7 +86,10 @@ app.get('/anime', function(req, res) {
 
 	MALintent.searchAnime(username, password, query)
 		.then( animes => {
-			const response = responseCreator.createResponse('Search Successful', animes)
+			const data = {
+				anime: animes
+			}
+			const response = responseCreator.createResponse('Search Successful', data, req)
 
 			res.send(StatusCodes.ok, response)
 			res.end()
@@ -115,7 +119,10 @@ app.get('/anime/:animeId', function(req, res) {
 
 	MALintent.getAnime(id)
 		.then( anime => {
-			const response = responseCreator.createResponse('Found', anime)
+			const data = {
+				anime: anime
+			}
+			const response = responseCreator.createResponse('Found', data, req)
 
 			res.send(StatusCodes.ok, response)
 			res.end()
@@ -131,7 +138,10 @@ app.get('/anime/:animeId', function(req, res) {
 app.get('/mylist', function(req, res) {
 	MALintent.getAnimeList(req.username)
 		.then( result => {
-			const response = responseCreator.createResponse('successful', result)
+			const data = {
+				anime: result
+			}
+			const response = responseCreator.createResponse('successful', data, req)
 
 			res.send(StatusCodes.ok, response)
 			res.end()
@@ -156,7 +166,10 @@ app.get('/mylist/:animeID', function(req, res) {
 			}).first()
 
 			if (anime) {
-				const response = responseCreator.createResponse('successful', anime)
+				const data = {
+					anime: anime
+				}
+				const response = responseCreator.createResponse('successful', data, req)
 
 				res.send(StatusCodes.ok, response)
 			} else {

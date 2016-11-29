@@ -106,6 +106,9 @@ exports.searchAnime = function(username, password, query) {
 			.then(extractBody)
 			.then(parseXml)
 			.then(parseSearchAnime)
+			.then( animes =>
+				animes.map(hateifyAnime)
+			)
 			.then( animes => {
 				resolve(animes)
 			}).catch( err => {
@@ -126,6 +129,9 @@ exports.getAnimeList = function(username) {
 			.then(extractBody)
 			.then(parseXml)
 			.then(parseMyListAnime)
+			.then( animes =>
+				animes.map(hateifyAnime)
+			)
 			.then( animes => {
 				resolve(animes)
 			}).catch( err => {
@@ -184,7 +190,9 @@ exports.getAnime = function(animeID) {
 			.then(parseAnimePage)
 			.then( anime => {
 				anime.malid = animeID
-				resolve(anime)
+				return anime
+			}).then( anime => {
+				resolve(hateifyAnime(anime))
 			}).catch( err => {
 				reject(err)
 			})
@@ -600,6 +608,17 @@ function parseAnimePage(page) {
 			reject(malsponse.animeNotFound)
 		}
 	})
+}
+
+/**
+ * Add HATEOAS to an anime
+ * @param  {Object} anime the anime to add to
+ * @return {Object}      the updated anime
+ */
+function hateifyAnime(anime) {
+	anime._links = {}
+	anime._links.self = `/anime/${anime.malid}`
+	return anime
 }
 
 /**
