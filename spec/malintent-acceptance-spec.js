@@ -50,7 +50,11 @@ describe('acceptance tests', () => {
 		.expectJSONTypes({
 			status: String,
 			message: String,
-			data: Array
+			_embedded: Object,
+			_links: Object
+		})
+		.expectJSONTypes('_embedded', {
+			anime: Array
 		})
 		.toss()
 
@@ -61,9 +65,13 @@ describe('acceptance tests', () => {
 		.expectJSONTypes({
 			status: String,
 			message: String,
-			data: Object
+			_embedded: Object,
+			_links: Object
 		})
-		.expectJSONTypes('data', {
+		.expectJSONTypes('_embedded', {
+			anime: Object
+		})
+		.expectJSONTypes('_embedded.anime', {
 			title: String,
 			info: Object,
 			episodes: String,
@@ -84,9 +92,13 @@ describe('acceptance tests', () => {
 		.expectJSONTypes({
 			status: String,
 			message: String,
-			data: Array
+			_embedded: Object,
+			_links: Object
 		})
-		.expectJSONTypes('data.0', {
+		.expectJSONTypes('_embedded', {
+			anime: Array
+		})
+		.expectJSONTypes('_embedded.anime.0', {
 			malid: String,
 			title: String,
 			my_watch_status: Number,
@@ -105,9 +117,13 @@ describe('acceptance tests', () => {
 		.expectJSONTypes({
 			status: String,
 			message: String,
-			data: Object
+			_embedded: Object,
+			_links: Object
 		})
-		.expectJSONTypes('data', {
+		.expectJSONTypes('_embedded', {
+			anime: Object
+		})
+		.expectJSONTypes('_embedded.anime', {
 			malid: String,
 			title: String,
 			my_watched_episodes: Number,
@@ -130,7 +146,8 @@ describe('acceptance tests', () => {
 		.expectHeaderContains('Content-Type', 'application/json')
 		.expectJSON({
 			status: 'Success',
-			message: 'updated'
+			message: 'updated',
+			_links: Object
 		})
 		.toss()
 })
