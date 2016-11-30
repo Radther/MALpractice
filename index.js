@@ -20,6 +20,20 @@ app.use(rest.queryParser())
 // Default Port
 const defaultPort = 8080
 
+/**
+ * Replaces instances of {host} with the host address
+ * @param  {object} json the json
+ * @param  {host} address the host address
+ * @return {object}      the updated object
+ */
+function hostable(json, address) {
+	const host = address || 'http://localhost'
+	const stringedJson = JSON.stringify(json)
+	const replacedString = stringedJson.replace(/{host}/g, host)
+
+	return JSON.parse(replacedString)
+}
+
 // Custom middleware
 app.use(function(req, res, next) {
 	if (!req.authorization.basic) {
@@ -91,7 +105,7 @@ app.get('/anime', function(req, res) {
 			}
 			const response = responseCreator.createResponse('Search Successful', data, req)
 
-			res.send(StatusCodes.ok, response)
+			res.send(StatusCodes.ok, hostable(response))
 			res.end()
 		}).catch( err => {
 			if (err === StatusCodes.noContent) {
@@ -124,7 +138,7 @@ app.get('/anime/:animeId', function(req, res) {
 			}
 			const response = responseCreator.createResponse('Found', data, req)
 
-			res.send(StatusCodes.ok, response)
+			res.send(StatusCodes.ok, hostable(response))
 			res.end()
 		}).catch( () => {
 			const response = responseCreator.createError('Anime not found')
@@ -143,7 +157,7 @@ app.get('/mylist', function(req, res) {
 			}
 			const response = responseCreator.createResponse('successful', data, req)
 
-			res.send(StatusCodes.ok, response)
+			res.send(StatusCodes.ok, hostable(response))
 			res.end()
 		}).catch( err => {
 			const response = responseCreator.createError(err)
@@ -171,7 +185,7 @@ app.get('/mylist/:animeID', function(req, res) {
 				}
 				const response = responseCreator.createResponse('successful', data, req)
 
-				res.send(StatusCodes.ok, response)
+				res.send(StatusCodes.ok, hostable(response))
 			} else {
 				const response = responseCreator.createError('This anime isn\'t in your list')
 
@@ -194,7 +208,7 @@ app.post('/mylist', function(req, res) {
 
 	MALintent.addAnime(username, password, req.body)
 		.then( result => {
-			res.send(StatusCodes.created, result)
+			res.send(StatusCodes.created, hostable(result))
 		}).catch( err => {
 			if (err === MALintent.malsponse.alreadyAdded) {
 				const response = responseCreator.createError('Already added')
@@ -220,12 +234,35 @@ app.put('/mylist', function(req, res) {
 		.then( () => {
 			const response = responseCreator.createResponse('updated')
 
-			res.send(StatusCodes.ok, response)
+			res.send(StatusCodes.ok, hostable(response))
 		}).catch( () => {
 			const response = responseCreator.createError('Failed to update')
 
 			res.send(StatusCodes.badRequest, response)
 			res.end()
+		})
+})
+
+app.del('/mylist/:animeID', function(req, res) {
+	const username = req.username
+	const password = req.authorization.basic.password
+
+	if (req.params.animeID === undefined) {
+		const response = responseCreator.createError('Failed to delete')
+
+		res.send(StatusCodes.badRequest, response)
+		return
+	}
+
+	MALintent.deleteAnime(username, password, req.params.animeID)
+		.then( () => {
+			const response = responseCreator.createResponse('deleted')
+
+			res.send(StatusCodes.ok, hostable(response))
+		}).catch( () => {
+			const response = responseCreator.createError('Failed to delete')
+
+			res.send(StatusCodes.badRequest, response)
 		})
 })
 

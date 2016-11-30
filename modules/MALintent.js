@@ -27,7 +27,9 @@ const malsponse = {
 	failedToAdd: 'failedToAdd',
 	alreadyAdded: 'alreadyAdded',
 	updatedSuccessfully: 'updatedSuccessfully',
+	deletedSuccessfully: 'deletedSuccessfully',
 	failedToUpdate: 'failedToUpdate',
+	failedToDelete: 'failedToDelete',
 	animeNotFound: 'animeNotFound'
 }
 
@@ -193,6 +195,18 @@ exports.getAnime = function(animeID) {
 				return anime
 			}).then( anime => {
 				resolve(hateifyAnime(anime))
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
+exports.deleteAnime = function(username, password, animeID) {
+	return new Promise(function(resolve, reject) {
+		runDeleteAnimeRequest(username, password, animeID)
+			.then(parseDeleteAnime)
+			.then( result => {
+				resolve(result)
 			}).catch( err => {
 				reject(err)
 			})
@@ -393,6 +407,40 @@ let runGetAnimeRequest = function(animeID) {
 }
 
 /**
+ * Run delete anime request
+ * @param  {string} username the users username
+ * @param  {string} password the users password
+ * @param  {string} animeID  the animes id
+ * @return {Promise}          a promise that resolves the success state
+ */
+let runDeleteAnimeRequest = function(username, password, animeID) {
+	return new Promise(function(resolve, reject) {
+		const url = baseUrl+method.delete
+			.injectURLParam('id', animeID)
+
+		const auth = createAuth(username, password)
+
+		const urlOptions = {
+			url: url,
+			headers: {
+				'Authorization': auth
+			}
+		}
+
+		urlOptions.
+			resolveWithFullResponse = true
+		urlOptions.simple = false
+
+		requestp.delete(urlOptions)
+			.then( result => {
+				resolve(result)
+			}).catch( err => {
+				reject(err)
+			})
+	})
+}
+
+/**
  * Rejects the result if the status code is bad
  * @param  {JSON} result result of a request
  * @return {Promise}        a promise that resolves the result if it has a good status code
@@ -564,6 +612,22 @@ function parseUpdateAnime(result) {
 }
 
 /**
+ * Parses the data from a delete anime request
+ * @param  {JSON} result the data from a delete anime request
+ * @return {Promise}        a promise that resolves a neater version of the delete anime data
+ */
+function parseDeleteAnime(result) {
+	return new Promise(function(resolve, reject) {
+		result.print()
+		if (result.statusCode === StatusCodes.ok) {
+			resolve(malsponse.deletedSuccessfully)
+		} else {
+			reject(malsponse.failedToDelete)
+		}
+	})
+}
+
+/**
  * Parses the data from a get anime page request
  * @param  {HTML} page the HTML of an anime page
  * @return {Promise}      a promise that resolves JSON data extracted from the page
@@ -617,7 +681,7 @@ function parseAnimePage(page) {
  */
 function hateifyAnime(anime) {
 	anime._links = {}
-	anime._links.self = `/anime/${anime.malid}`
+	anime._links.self = `{host}/anime/${anime.malid}`
 	return anime
 }
 

@@ -15,7 +15,7 @@ exports.createResponse = function(message, data, req) {
 	}
 
 	if (req !== undefined) {
-		response.hateifyLink('self', req._url.href)
+		response.hateifyLink('self', `{host}${req._url.href}`)
 	}
 	return response
 }
