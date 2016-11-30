@@ -226,6 +226,7 @@ describe('MALintent Unit Tests', () => {
 
 			MALintent.addAnime(uniUsername, uniPassword, animeData)
 				.then( () => {
+					done()
 					throw new Error('this should have errored')
 				}).catch( err => {
 					expect(err).toBe(MALsponse.failedToAdd)

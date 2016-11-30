@@ -207,8 +207,10 @@ app.post('/mylist', function(req, res) {
 	const password = req.authorization.basic.password
 
 	MALintent.addAnime(username, password, req.body)
-		.then( result => {
-			res.send(StatusCodes.created, hostable(result))
+		.then( () => {
+			const response = responseCreator.createResponse('added')
+
+			res.send(StatusCodes.created, hostable(response))
 		}).catch( err => {
 			if (err === MALintent.malsponse.alreadyAdded) {
 				const response = responseCreator.createError('Already added')

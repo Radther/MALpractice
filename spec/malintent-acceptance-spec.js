@@ -1,4 +1,5 @@
 'use strict'
+/*istanbul ignore next*/
 
 const frisby = require('frisby')
 
@@ -111,7 +112,7 @@ describe('acceptance tests', () => {
 		.toss()
 
 	frisby.create('get sinlge anime from a users list')
-		.get(baseUrl+method.mylist+'/1')
+		.get(baseUrl+method.mylist+'/6675')
 		.expectStatus(StatusCodes.ok)
 		.expectHeaderContains('Content-Type', 'application/json')
 		.expectJSONTypes({

@@ -165,4 +165,32 @@ describe('MALintent Intergration Tests', () => {
 				})
 		})
 	})
+
+	describe('delete anime test', function() {
+		beforeEach( done => {
+			const animeId = 1
+
+			MALintent.addAnime(uniUsername, uniPassword, animeId)
+			done()
+		})
+
+		afterEach( done => {
+			const animeId = 1
+
+			MALintent.addAnime(uniUsername, uniPassword, animeId)
+			done()
+		})
+
+		it('delete anime', done => {
+			const animeId = 1
+
+			MALintent.deleteAnime(uniUsername, uniPassword, animeId)
+				.then( result => {
+					expect(result).toBe(MALsponse.deletedSuccessfully)
+					done()
+				}).catch( () => {
+					throw new Error('should be deleted successfully')
+				})
+		})
+	})
 })

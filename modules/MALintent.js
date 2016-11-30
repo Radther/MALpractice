@@ -202,14 +202,12 @@ exports.getAnime = function(animeID) {
 }
 
 exports.deleteAnime = function(username, password, animeID) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		runDeleteAnimeRequest(username, password, animeID)
 			.then(parseDeleteAnime)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err)
-			})
+			}).catch()
 	})
 }
 
@@ -219,16 +217,14 @@ exports.deleteAnime = function(username, password, animeID) {
  * @return {Promise}         a promise that resolves the result of the request
  */
 function runRequest(options) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		options.
 			resolveWithFullResponse = true
 		options.simple = false
 		requestp.get(options)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err.statusCode)
-			})
+			}).catch()
 	})
 }
 
@@ -239,7 +235,7 @@ function runRequest(options) {
  * @return {Promise}          a promise that resolves the auth data
  */
 let runAuthRequest = function(username, password) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		const url = baseUrl+method.verify
 		const auth = createAuth(username, password)
 		const urlOptions = {
@@ -252,8 +248,6 @@ let runAuthRequest = function(username, password) {
 		runRequest(urlOptions)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -283,8 +277,6 @@ let runSearchRequest = function(username, password, search) {
 					reject(StatusCodes.noContent)
 				}
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -295,7 +287,7 @@ let runSearchRequest = function(username, password, search) {
  * @return {Promise}          a promise that resolves the users list
  */
 let runGetUserAnimeRequest = function(username) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		const url = baseUrl+method.list
 			.injectURLParam('username', username)
 		const urlOptions = {
@@ -304,12 +296,7 @@ let runGetUserAnimeRequest = function(username) {
 
 		runRequest(urlOptions)
 			.then( result => {
-				if (result.statusCode === StatusCodes.noContent) {
-					reject(StatusCodes.noContent)
-				}
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -342,8 +329,6 @@ let runAddAnimeRequest = function(username, password, animeData) {
 		runRequest(urlOptions)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -356,7 +341,7 @@ let runAddAnimeRequest = function(username, password, animeData) {
  * @return {Promise}           a promise that resolves the success of the operation
  */
 let runUpdateAnimeRequest = function(username, password, animeData) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		const xmlData = createAnimeXML(animeData)
 		const encodedXmlData = encodeURIComponent(xmlData)
 
@@ -377,8 +362,6 @@ let runUpdateAnimeRequest = function(username, password, animeData) {
 		runRequest(urlOptions)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -389,7 +372,7 @@ let runUpdateAnimeRequest = function(username, password, animeData) {
  * @return {Promise}         a promise that resolves the anime data
  */
 let runGetAnimeRequest = function(animeID) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		const url = baseUrl+method.get
 			.injectURLParam('id', animeID)
 
@@ -400,8 +383,6 @@ let runGetAnimeRequest = function(animeID) {
 		runRequest(urlOptions)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -414,7 +395,7 @@ let runGetAnimeRequest = function(animeID) {
  * @return {Promise}          a promise that resolves the success state
  */
 let runDeleteAnimeRequest = function(username, password, animeID) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		const url = baseUrl+method.delete
 			.injectURLParam('id', animeID)
 
@@ -434,8 +415,6 @@ let runDeleteAnimeRequest = function(username, password, animeID) {
 		requestp.delete(urlOptions)
 			.then( result => {
 				resolve(result)
-			}).catch( err => {
-				reject(err)
 			})
 	})
 }
@@ -463,12 +442,8 @@ function rejectBadStatusCode(result) {
  * @return {Promise}        a promise that resolves the requests body
  */
 function extractBody(result) {
-	return new Promise(function(resolve, reject) {
-		try {
-			resolve(result.body)
-		} catch (error) {
-			reject(error)
-		}
+	return new Promise(function(resolve) {
+		resolve(result.body)
 	})
 }
 
@@ -478,12 +453,10 @@ function extractBody(result) {
  * @return {Promise}     a promise that resolves the JSON representation of the passed in XML
  */
 function parseXml(xml) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		xml2jsp(xml)
 			.then( json => {
 				resolve(json)
-			}).catch( () => {
-				reject(malsponse.failedToParse)
 			})
 	})
 }
@@ -494,18 +467,14 @@ function parseXml(xml) {
  * @return {Promise}      a promise that resolves a neater version of the authentication data
  */
 function parseAuthentication(json) {
-	return new Promise(function(resolve, reject) {
-		try {
-			const data = {
-				response: malsponse.verified,
-				userid: json.user.id.first(),
-				username: json.user.username.first()
-			}
-
-			resolve(data)
-		} catch (error) {
-			reject(malsponse.failedToParse)
+	return new Promise(function(resolve) {
+		const data = {
+			response: malsponse.verified,
+			userid: json.user.id.first(),
+			username: json.user.username.first()
 		}
+
+		resolve(data)
 	})
 }
 
@@ -515,30 +484,23 @@ function parseAuthentication(json) {
  * @return {Promise}      a promise that resolves a neater version of the search data
  */
 function parseSearchAnime(json) {
-	return new Promise(function(resolve, reject) {
-		try {
-			const animes = []
+	return new Promise(function(resolve) {
+		const animes = []
 
-			for (const item of json.anime.entry) {
-				const anime = {}
+		for (const item of json.anime.entry) {
+			const anime = {}
 
-				if (!item.id.first()) {
-					continue
-				}
-				anime.malid = item.id.first()
-				anime.title = item.title.first() !== undefined && item.title.first() !== ''? item.title.first() : '[title unknown]'
-				anime.episodes = item.episodes.first() !== undefined && Number(item.episodes.first()) !== 0 ? item.episodes.first() : '???'
-				anime.score = item.score.first() !== undefined && item.score.first() !== '0.00' ? item.score.first() : 'N/A'
-				anime.type = item.type.first() !== undefined && item.type.first() !== '' ? item.type.first() : 'Unknown'
-				anime.air_status = item.status.first() !== undefined && item.status.first() !== '' ? item.status.first() : 'Unknown'
-				anime.imageurl = item.image.first() !== undefined && item.image.first() !== '' ? item.image.first() : ''
+			anime.malid = item.id.first()
+			anime.title = item.title.first()
+			anime.episodes = item.episodes.first() !== undefined && Number(item.episodes.first()) !== 0 ? item.episodes.first() : '???'
+			anime.score = item.score.first() !== undefined && item.score.first() !== '0.00' ? item.score.first() : 'N/A'
+			anime.type = item.type.first()
+			anime.air_status = item.status.first()
+			anime.imageurl = item.image.first()
 
-				animes.push(anime)
-			}
-			resolve(animes)
-		} catch (error) {
-			reject(malsponse.failedToParse)
+			animes.push(anime)
 		}
+		resolve(animes)
 	})
 }
 
@@ -559,7 +521,7 @@ function parseMyListAnime(json) {
 				const anime = {}
 
 				anime.malid = item.series_animedb_id.first()
-				anime.title = item.series_title.first() || '[title unknown]'
+				anime.title = item.series_title.first()
 				anime.my_watched_episodes = Number(item.my_watched_episodes.first())
 
 				const watch_status_code = Number(item.my_status.first())
@@ -616,14 +578,9 @@ function parseUpdateAnime(result) {
  * @param  {JSON} result the data from a delete anime request
  * @return {Promise}        a promise that resolves a neater version of the delete anime data
  */
-function parseDeleteAnime(result) {
-	return new Promise(function(resolve, reject) {
-		result.print()
-		if (result.statusCode === StatusCodes.ok) {
-			resolve(malsponse.deletedSuccessfully)
-		} else {
-			reject(malsponse.failedToDelete)
-		}
+function parseDeleteAnime() {
+	return new Promise(function(resolve) {
+		resolve(malsponse.deletedSuccessfully)
 	})
 }
 
@@ -634,43 +591,39 @@ function parseDeleteAnime(result) {
  */
 function parseAnimePage(page) {
 	return new Promise(function(resolve, reject) {
-		try {
-			const $ = cheerio.load(page, {decodeEntities: false})
+		const $ = cheerio.load(page, {decodeEntities: false})
 
-			if (!($('.error404').text().trim().replace(/\s\s+/g, ' ') === '')) {
-				reject(malsponse.animeNotFound)
-			}
-			const anime = {}
-
-			anime.title = $('h1').text()
-			anime.info = {}
-
-			$('span[class^="dark_text"]').parent().each(function(index, elem) {
-				const data = $(elem).children('span[class^="dark_text"]').text().replace(':','')
-
-				$(elem).children('span[class^="dark_text"]').remove()
-				$(elem).children('.statistics-info').remove()
-				$(elem).children('sup').remove()
-				const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
-
-				anime.info[data] = item
-				if (data === 'Episodes') {
-					anime.episodes = item
-				}
-			})
-
-			anime.description = $('span[itemprop^="description"]').text()
-			anime.score = $('.score').text().trim().replace(/\s\s+/g, ' ')
-			anime.rank = $('.numbers.ranked').children('strong').text().trim().replace(/\s\s+/g, ' ')
-			anime.popularity = $('.numbers.popularity').children('strong').text().trim().replace(/\s\s+/g, ' ')
-			anime.members = $('.numbers.members').children('strong').text().trim().replace(/\s\s+/g, ' ')
-
-			anime.imageurl = $('[itemprop^="image"]').attr('src')
-
-			resolve(anime)
-		} catch (error) {
+		if (!($('.error404').text().trim().replace(/\s\s+/g, ' ') === '')) {
 			reject(malsponse.animeNotFound)
 		}
+		const anime = {}
+
+		anime.title = $('h1').text()
+		anime.info = {}
+
+		$('span[class^="dark_text"]').parent().each(function(index, elem) {
+			const data = $(elem).children('span[class^="dark_text"]').text().replace(':','')
+
+			$(elem).children('span[class^="dark_text"]').remove()
+			$(elem).children('.statistics-info').remove()
+			$(elem).children('sup').remove()
+			const item = $(elem).text().trim().replace(/\s\s+/g, ' ').replace(', add some', '')
+
+			anime.info[data] = item
+			if (data === 'Episodes') {
+				anime.episodes = item
+			}
+		})
+
+		anime.description = $('span[itemprop^="description"]').text()
+		anime.score = $('.score').text().trim().replace(/\s\s+/g, ' ')
+		anime.rank = $('.numbers.ranked').children('strong').text().trim().replace(/\s\s+/g, ' ')
+		anime.popularity = $('.numbers.popularity').children('strong').text().trim().replace(/\s\s+/g, ' ')
+		anime.members = $('.numbers.members').children('strong').text().trim().replace(/\s\s+/g, ' ')
+
+		anime.imageurl = $('[itemprop^="image"]').attr('src')
+
+		resolve(anime)
 	})
 }
 
