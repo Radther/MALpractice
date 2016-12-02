@@ -13,16 +13,9 @@ const username = 'unistudent'
 const password = '+)}/wnP.G46D63TkUKq4'
 const fakePassword = 'notARealPassword'
 
-storage.initSync({
-	dir: 'data/anime',
-	stringify: JSON.stringify,
-	parse: JSON.parse,
-	encoding: 'utf8'
-})
-
-storage.getItemSync('1').print()
-
-// storage.setItem('1', {
-// 	title: 'Cowboy',
-// 	episodes: '12'
-// })
+malintent.deleteAnime(username, password, 1)
+	.then( result => {
+		result
+	}).catch( err => {
+		err
+	})

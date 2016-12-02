@@ -1,26 +1,6 @@
 'use strict'
 
 /**
- * Allows any object to be printed to the console
- * @return {N/A} returns nothing
- */
-Object.prototype.print = function() {
-	console.log(this)
-}
-
-/**
- * Prints each item in an array
- * @return {N/A} returns nothing
- */
-Array.prototype.print = function() {
-	for (let i = this.length - 1; i >= 0; i--) {
-		const item = this[i]
-
-		item.print()
-	}
-}
-
-/**
  * Returns the first item in an array
  * @return {Any} the first item in an array
  */

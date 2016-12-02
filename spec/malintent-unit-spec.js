@@ -44,14 +44,14 @@ describe('MALintent Unit Tests', () => {
 					expect(data.username).toBe(uniUsername)
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
 		it('verify user fail', (done) => {
 			MALintent.verifyUser(uniUsername, fakePassword)
 				.then( () => {
-					'This should not be called'.print()
+					console.log('This should not be called')
 				}).catch( err => {
 					expect(err).toBe(StatusCodes.unauthorised)
 					done()
@@ -91,7 +91,7 @@ describe('MALintent Unit Tests', () => {
 					expect(anime).not.toBeNull()
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
@@ -101,14 +101,14 @@ describe('MALintent Unit Tests', () => {
 					expect(anime).not.toBeNull()
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
 		it('no content search', (done) => {
 			MALintent.searchAnime(uniUsername, uniPassword, 'no content')
 				.then( () => {
-					'should be no content'.print()
+					console.log('should be no content')
 				}).catch( err => {
 					expect(err).toBe(StatusCodes.noContent)
 					done()
@@ -197,7 +197,7 @@ describe('MALintent Unit Tests', () => {
 					expect(data).toBe(MALsponse.addedSuccessfully)
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
@@ -265,7 +265,7 @@ describe('MALintent Unit Tests', () => {
 					expect(data).toBe(MALsponse.updatedSuccessfully)
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
@@ -321,7 +321,7 @@ describe('MALintent Unit Tests', () => {
 					expect(anime.title).toBe('Cowboy Bebop')
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 

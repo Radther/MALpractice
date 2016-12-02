@@ -97,7 +97,7 @@ describe('MALintent Intergration Tests', () => {
 				.then( () => {
 					done()
 				}).catch(err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
@@ -113,7 +113,7 @@ describe('MALintent Intergration Tests', () => {
 					expect(data).toBe(MALsponse.addedSuccessfully)
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 	})
@@ -132,7 +132,7 @@ describe('MALintent Intergration Tests', () => {
 					expect(data).toBe(MALsponse.updatedSuccessfully)
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 	})
@@ -149,7 +149,7 @@ describe('MALintent Intergration Tests', () => {
 					expect(anime.title).toBe('Cowboy Bebop')
 					done()
 				}).catch( err => {
-					err.print()
+					console.log(err)
 				})
 		})
 
