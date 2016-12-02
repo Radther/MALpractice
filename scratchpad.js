@@ -3,6 +3,12 @@
 /*istanbul ignore next*/
 /* global expect */
 
+/**
+ * scratch pad
+ * noun	chiefly N. Amer.
+ * a notepad.
+ */
+
 const request = require('request-promise')
 const xml2js = require('xml2js-es6-promise')
 const malintent = require('./modules/malintent.js')
