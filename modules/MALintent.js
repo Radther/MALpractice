@@ -108,9 +108,7 @@ exports.searchAnime = function(username, password, query) {
 			.then(extractBody)
 			.then(parseXml)
 			.then(parseSearchAnime)
-			.then( animes =>
-				animes.map(hateifyAnime)
-			)
+			.then(hateifyAnimes)
 			.then( animes => {
 				resolve(animes)
 			}).catch( err => {
@@ -131,9 +129,7 @@ exports.getAnimeList = function(username) {
 			.then(extractBody)
 			.then(parseXml)
 			.then(parseMyListAnime)
-			.then( animes =>
-				animes.map(hateifyAnime)
-			)
+			.then(hateifyAnimes)
 			.then( animes => {
 				resolve(animes)
 			}).catch( err => {
@@ -624,6 +620,17 @@ function parseAnimePage(page) {
 		anime.imageurl = $('[itemprop^="image"]').attr('src')
 
 		resolve(anime)
+	})
+}
+
+/**
+ * Adds HATEOAS to a list of animu
+ * @param  {Array} animes list of anime objects
+ * @return {Promise}        a promise that resolves the HATEOAS-ified anime
+ */
+function hateifyAnimes(animes) {
+	return new Promise(function(resolve) {
+		resolve(animes.map(hateifyAnime))
 	})
 }
 
