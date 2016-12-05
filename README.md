@@ -76,4 +76,4 @@ The app also makes use of iOS paradims to make a truley native experiance, such 
 
 ![App_IMG_2](README_FILES/App_IMG_2.png)
 
-To see more about the client see the video [here](https://www.youtube.com/watch?v=KabkOLl_ZZg) or checkout the source code [here](https://gitlab.com/Radther/MALnourished).
+To see more about the client see the video [here](https://www.youtube.com/watch?v=KabkOLl_ZZg).
