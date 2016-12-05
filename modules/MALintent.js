@@ -305,7 +305,7 @@ let runGetUserAnimeRequest = function(username) {
  * @return {Promise}           a promise that resolves the success of the operation
  */
 let runAddAnimeRequest = function(username, password, animeData) {
-	return new Promise(function(resolve, reject) {
+	return new Promise(function(resolve) {
 		const xmlData = createAnimeXML(animeData)
 		const encodedXmlData = encodeURIComponent(xmlData)
 

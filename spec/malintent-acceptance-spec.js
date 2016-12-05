@@ -28,7 +28,8 @@ function createAuth(username, password) {
 frisby.globalSetup({
 	request: {
 		headers: {'Authorization': createAuth(uniUsername, uniPassword)}//, 'Content-Type': 'application/json'}
-	}
+	},
+	timeout: 10000
 })
 
 describe('acceptance tests', () => {
