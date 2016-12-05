@@ -197,6 +197,13 @@ exports.getAnime = function(animeID) {
 	})
 }
 
+/**
+ * Deletes an anime from a users list
+ * @param  {String} username the users username
+ * @param  {String} password the users password
+ * @param  {String} animeID  the id of the anime
+ * @return {Promise}          a promise that resolves the success state
+ */
 exports.deleteAnime = function(username, password, animeID) {
 	return new Promise(function(resolve) {
 		runDeleteAnimeRequest(username, password, animeID)
