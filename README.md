@@ -6,7 +6,9 @@ This is the repository for my WebAPI (304CEM) university module. The API connect
 
 The data returned also conforms to the HATEOAS spec.
 
+## Live Endpoint
 
+If you want to test the API you can hit the endpoint located at: `178.62.13.212:8081`.
 
 ## Setup
 
