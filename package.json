@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/jasmine-node spec --color --verbose --autotest --watch .",
+    "test": "node_modules/.bin/jasmine-node spec --color --verbose .",
     "coverage": "./node_modules/.bin/istanbul cover -x **/spec/** jasmine-node spec"
   },
   "author": "Tom Singleton",
