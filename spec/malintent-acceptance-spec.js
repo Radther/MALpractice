@@ -32,7 +32,7 @@ frisby.globalSetup({
 	timeout: 10000
 })
 
-describe('acceptance tests', () => {
+xdescribe('acceptance tests', () => {
 	frisby.create('authenticate user with correct details')
 		.head(baseUrl+method.anime)
 		.expectStatus(StatusCodes.ok)
